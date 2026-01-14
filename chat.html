@@ -248,9 +248,10 @@
     let currentChatroomIsGroup = false;
     const defaultProfileImg = "https://bit.ly/3K2rlSh"; // 프로필 이미지를 설정하지 않은 경우
     let chatbotProfileImg = 'logo_bapick copy.png'; 
-    const greetingMessage = "안녕! 나는 오늘의 운세에 맞춰 행운의 맛집을 추천해주는 밥풀이야🍀 지금 너한테 딱 맞는 메뉴 추천해줄까?"; 
+    const greetingMessage = "안녕! 나는 오늘의 운세에 맞춰 행운의 맛집을 추천해주는 밥풀이야🍀 지금 너한테 딱 맞는 메뉴 추천해줄까? 먹고 싶은 메뉴 고르면 식당도 알려줄게!"; 
     let websocket = null;
     let isWebSocketConnected = false;
+    let ohengInfoShown = false;
 
     // DOM 요소
     const sendButton = document.getElementById('sendButton');
@@ -355,6 +356,51 @@
             messageBox.appendChild(createProfileIcon(msg, true));
             messageBox.appendChild(bubbleDiv);
 
+            // 메시지 타입으로 버튼 표시 여부 결정
+            const isOhengInfo = msg.message_type === 'oheng_info';
+            const isLocationSelect = msg.message_type === 'location_select';
+            const isRestaurantCards = msg.message_type === 'restaurant_cards';
+            const isHiddenInitial = msg.message_type === 'hidden_initial';
+            
+            // oheng_info가 이미 표시되었는지 체크
+            if (isOhengInfo) {
+                ohengInfoShown = true;
+            }
+            
+            // 일반 텍스트 메시지(message_type이 'text'이거나 undefined)이고, 
+            // 오행 정보를 아직 안 본 경우에만 버튼 표시
+            const isRegularTextMessage = !msg.message_type || msg.message_type === 'text';
+            //const shouldShowButton = isRegularTextMessage && !ohengInfoShown;
+            
+            const isGreeting = msg.content === greetingMessage;
+            const shouldShowButton = isRegularTextMessage && !ohengInfoShown && !isGreeting;
+
+            if (shouldShowButton) {
+                ohengInfoShown = true;
+                
+                const ohengButton = document.createElement('button');
+                
+                ohengButton.className = 'location-select-button px-3 py-2 rounded-xl text-sm font-medium border transition bg-[#FF7242] text-white hover:bg-[#E85F33]';
+                ohengButton.innerHTML = '음식 추천 기준이 뭐야?';
+                ohengButton.style.cssText = `
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 6px;
+                    margin-top: 8px;
+                    border: none;
+                `;
+                                
+                ohengButton.onclick = function() {
+                    messageInput.value = '[REQUEST_OHENG_INFO]';
+                    sendMessage();
+                };
+
+                const buttonContainer = document.createElement('div');
+                buttonContainer.className = 'w-full flex justify-start'; 
+                buttonContainer.appendChild(ohengButton);
+                
+                bubbleDiv.appendChild(buttonContainer);
+            }
         } else if (isMyMessage) {
             // 본인 메시지
             const bubbleDiv = document.createElement('div');
@@ -513,7 +559,30 @@
         if (msg.message_type === "hidden_initial") {
             return;
         }
-                
+        
+        // oheng_info 타입(음식 추천 기준)은 특별한 스타일로 표시
+        if (msg.message_type === 'oheng_info') {
+            const messageBox = document.createElement('div');
+            messageBox.className = 'message-box system-message';
+            
+            const profileIcon = createProfileIcon(msg, true);
+            
+            const bubbleDiv = document.createElement('div');
+            bubbleDiv.className = 'message-bubble system-bubble';
+            bubbleDiv.style.cssText = `
+                background-color: #f8f9ff;
+                border: 1px solid #e0e7ff;
+                white-space: pre-line;
+                line-height: 1.7;
+            `;
+            bubbleDiv.textContent = msg.content;
+            
+            messageBox.appendChild(profileIcon);
+            messageBox.appendChild(bubbleDiv);
+            chatArea.appendChild(messageBox);
+            return;
+        }
+
         if (msg.message_type === 'location_select') {
             isExpectingAddress = true; 
 
@@ -655,6 +724,7 @@
 
         const headlineMessage = { role: 'assistant', content: greetingMessage }; 
         chatArea.appendChild(createTextMessage(headlineMessage));
+                
         scrollToBottom(chatArea);
 
         // const loadingDiv = renderLoadingIndicator();
@@ -730,6 +800,14 @@
 
             setRoomTypeUI(data); // 방의 타입(그룹/1:1)에 따라 제목, placeholder 설정
 
+            ohengInfoShown = messages.some(msg => msg.message_type === 'oheng_info');
+
+            messages.forEach(msg => {
+                if (msg.message_type === 'oheng_info') {
+                    ohengInfoShown = true;
+                }
+            });
+            
             container.innerHTML = ''; 
 
             messages.forEach(msg => {
@@ -806,9 +884,10 @@
         
         // 위치 정보는 화면에 표시하지 않음
         const isLocationMessage = messageText.startsWith('[LOCATION_SELECTED:');
+        const isOhengInfoRequest = messageText === '[REQUEST_OHENG_INFO]';
 
         // 로그인한 사용자 본인이 보낸 메시지 중 일반 메시지만 렌더링
-        if (!isLocationMessage) {
+        if (!isLocationMessage && !isOhengInfoRequest) {
             const userMsg = { role: 'user', content: messageText, sender_id: currentUserUid};
             chatArea.appendChild(createTextMessage(userMsg));
         }
@@ -846,7 +925,7 @@
         // 로딩 UI 표시 (1:1 채팅이거나 그룹채팅에서 @밥풀이를 호출한 경우)
         const shouldShowLoading = !currentChatroomIsGroup || messageText.includes('@밥풀이');
         let loadingDiv = null;
-        if (shouldShowLoading) {
+        if (shouldShowLoading && !isOhengInfoRequest) {
             loadingDiv = renderLoadingIndicator();
         }
 
