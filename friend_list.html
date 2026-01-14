@@ -260,15 +260,13 @@
         // =========================================================
         // 5. 공통 UI 컴포넌트: 친구 카드 생성
         // =========================================================
-        const DEFAULT_PROFILE_IMAGE_URL = "https://bapick-s3-bucket.s3.ap-northeast-2.amazonaws.com/default/default_profile.png";
-
         function createFriendCard(user, status) {
             const card = document.createElement('div');
             card.className = 'flex items-center justify-between p-3 my-1 bg-white rounded-lg shadow-sm';
 
             const profileImageUrl = user.profile_image && user.profile_image.trim() !== ''
                 ? user.profile_image
-                : DEFAULT_PROFILE_IMAGE_URL;
+                : 'assets/images/default-profile.png';
 
             card.innerHTML = `
             <div class="flex items-center">
