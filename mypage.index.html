@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>마이페이지</title>
+    <title>밥픽 - 마이페이지</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,7 +18,7 @@
             font-family: 'Noto Sans KR', 'Inter', sans-serif;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
-            padding-bottom: 80px; /* Pastki menyu uchun joy */
+            padding-bottom: 80px;
         }
         .popup-hidden {
             opacity: 0;
@@ -55,7 +55,7 @@
             <div class="w-full">
                 <section class="bg-white flex items-center p-5 border-b-8 border-gray-100">
                     <div class="w-16 h-16 rounded-full mr-4 flex-shrink-0 overflow-hidden bg-gray-200">
-                        <img id="user-display-profile-image" class="w-full h-full object-cover" src="assets/images/default-profile.png" alt="프로필 사진">
+                        <img id="user-display-profile-image" class="w-full h-full object-cover" src="assets/images/default-profile.jpg" alt="프로필 사진">
                     </div>
                     <div class="flex-1">
                         <a href="profile_edit.html" class="text-lg font-bold text-gray-800 flex items-center">
@@ -160,8 +160,10 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
 
-        const fastapiUrl = "https://bapick.duckdns.org"
-        
+        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        //const fastapiUrl = "https://bapick.duckdns.org";
+        const fastapiUrl = isLocal ? "http://127.0.0.1:8000" : "https://bapick.duckdns.org";
+
         // DOM 요소 로드
         const overlay = document.getElementById('overlay');
         const logoutBtn = document.getElementById('logout-btn');
@@ -219,9 +221,9 @@
                 const data = await res.json();
 
                 // UI 업데이트
-                userDisplayName.textContent = `${data.nickname}님`;
+                userDisplayName.textContent = data.nickname ? `${data.nickname}님` : '사용자';;
                 userDisplayProfileImage.src = data.profileImage;
-
+                
             } catch (err) {
                 console.error('마이페이지 유저 정보 로드 실패:', err);
                 userDisplayName.textContent = '정보를 불러오지 못했습니다';
