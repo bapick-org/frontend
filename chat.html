@@ -251,7 +251,7 @@
     const greetingMessage = "안녕! 나는 오늘의 운세에 맞춰 행운의 맛집을 추천해주는 '밥풀이'야🍀 지금 너한테 딱 맞는 메뉴 추천해줄까? 먹고 싶은 메뉴 고르면 식당도 알려줄게!"; 
     let websocket = null;
     let isWebSocketConnected = false;
-    let ohengInfoShown = false;
+    let isGuideShown = false; // 음식 추천 가이드(기준) 버튼 표시 여부
 
     // DOM 요소
     const sendButton = document.getElementById('sendButton');
@@ -360,34 +360,28 @@
             // '음식 추천 기준이 뭐야?' 버튼 표시 조건 판단
 
             // a) 특수 메시지 타입 체크
-            const isOhengInfo = msg.message_type === 'oheng_info';
+            const isGuideShown = msg.message_type === 'recommendation_guide';
             const isLocationSelect = msg.message_type === 'location_select';
             const isRestaurantCards = msg.message_type === 'restaurant_cards';
             const isHiddenInitial = msg.message_type === 'hidden_initial';
-            
-            // b) oheng_info(음식 추천 기준 메시지)가 이미 표시된 경우 플래그 설정 (버튼 중복 생성 방지)
-            if (isOhengInfo) {
-                ohengInfoShown = true;
-            }
 
-            // c) 일반 텍스트 메시지인지 확인 (message_type이 없거나 'text'인 경우)
+            // b) 일반 텍스트 메시지인지 확인 (message_type이 없거나 'text'인 경우)
             const isRegularTextMessage = !msg.message_type || msg.message_type === 'text';       
-            // d) 인사 메시지인지 확인 (greeting 타입)     
-            //const isGreeting = msg.message_type === 'greeting';
+            // c) 인사 메시지인지 확인 (greeting 타입)     
             const isGreeting = msg.content === greetingMessage;
 
             // 버튼 표시 조건: 일반 텍스트 메시지이고, 아직 음식 추천 기준 메시지가 없으며, 인사 메시지가 아닌 경우
-            const shouldShowButton = isRegularTextMessage && !ohengInfoShown && !isGreeting;
+            const shouldShowButton = isRegularTextMessage && !isGuideShown && !isGreeting;
 
             if (shouldShowButton) {
                 // 버튼을 한 번 표시했으므로 플래그 설정 (버튼 중복 생성 방지)
-                ohengInfoShown = true;
+                isGuideShown = true;
                 
-                const ohengButton = document.createElement('button');
+                const guideButton = document.createElement('button');
                 
-                ohengButton.className = 'location-select-button px-3 py-2 rounded-xl text-sm font-medium border transition bg-[#FF7242] text-white hover:bg-[#E85F33]';
-                ohengButton.innerHTML = '음식 추천 기준이 뭐야?';
-                ohengButton.style.cssText = `
+                guideButton.className = 'location-select-button px-3 py-2 rounded-xl text-sm font-medium border transition bg-[#FF7242] text-white hover:bg-[#E85F33]';
+                guideButton.innerHTML = '음식 추천 기준이 뭐야?';
+                guideButton.style.cssText = `
                     display: inline-flex;
                     align-items: center;
                     gap: 6px;
@@ -396,14 +390,14 @@
                 `;
                 
                 // 버튼 클릭 시 오행 정보 요청 전송
-                ohengButton.onclick = function() {
-                    messageInput.value = '[REQUEST_OHENG_INFO]';
+                guideButton.onclick = function() {
+                    messageInput.value = '[REQUEST_RECOMMENDATION_GUIDE]';
                     sendMessage();
                 };
 
                 const buttonContainer = document.createElement('div');
                 buttonContainer.className = 'w-full flex justify-start'; 
-                buttonContainer.appendChild(ohengButton);
+                buttonContainer.appendChild(guideButton);
                 
                 bubbleDiv.appendChild(buttonContainer);
             }
@@ -566,8 +560,8 @@
             return;
         }
         
-        // oheng_info 타입(음식 추천 기준)은 특별한 스타일로 표시
-        if (msg.message_type === 'oheng_info') {
+        // recommendation_guide 타입(음식 추천 기준)은 특별한 스타일로 표시
+        if (msg.message_type === 'recommendation_guide') {
             const messageBox = document.createElement('div');
             messageBox.className = 'message-box system-message';
             
@@ -805,7 +799,7 @@
 
             setRoomTypeUI(data); // 방의 타입(그룹/1:1)에 따라 제목, placeholder 설정
 
-            ohengInfoShown = messages.some(msg => msg.message_type === 'oheng_info');
+            isGuideShown = messages.some(msg => msg.message_type === 'recommendation_guide');
 
             container.innerHTML = ''; 
 
@@ -881,12 +875,12 @@
             return;
         }
         
-        // 위치 정보는 화면에 표시하지 않음
+        // 위치 정보와 추천 기준 설명 요청은 화면에 표시하지 않음
         const isLocationMessage = messageText.startsWith('[LOCATION_SELECTED:');
-        const isOhengInfoRequest = messageText === '[REQUEST_OHENG_INFO]';
+        const isGuideRequest = messageText === '[REQUEST_RECOMMENDATION_GUIDE]';
 
         // 로그인한 사용자 본인이 보낸 메시지 중 일반 메시지만 렌더링
-        if (!isLocationMessage && !isOhengInfoRequest) {
+        if (!isLocationMessage && !isGuideRequest) {
             const userMsg = { role: 'user', content: messageText, sender_id: currentUserUid};
             chatArea.appendChild(createTextMessage(userMsg));
         }
@@ -924,7 +918,7 @@
         // 로딩 UI 표시 (1:1 채팅이거나 그룹채팅에서 @밥풀이를 호출한 경우)
         const shouldShowLoading = !currentChatroomIsGroup || messageText.includes('@밥풀이');
         let loadingDiv = null;
-        if (shouldShowLoading && !isOhengInfoRequest) {
+        if (shouldShowLoading && !isGuideRequest) {
             loadingDiv = renderLoadingIndicator();
         }
 
