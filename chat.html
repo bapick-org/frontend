@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat App UI</title>
+    <title>Bapick - 채팅</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=85cfe1eb44a56817dcedc87a46b5070b&libraries=services,places"></script>
@@ -248,7 +248,7 @@
     let currentChatroomIsGroup = false;
     const defaultProfileImg = "https://bit.ly/3K2rlSh"; // 프로필 이미지를 설정하지 않은 경우
     let chatbotProfileImg = 'logo_bapick copy.png'; 
-    const greetingMessage = "안녕! 나는 오늘의 운세에 맞춰 행운의 맛집을 추천해주는 밥풀이야🍀 지금 너한테 딱 맞는 메뉴 추천해줄까? 먹고 싶은 메뉴 고르면 식당도 알려줄게!"; 
+    const greetingMessage = "안녕! 나는 오늘의 운세에 맞춰 행운의 맛집을 추천해주는 '밥풀이'야🍀 지금 너한테 딱 맞는 메뉴 추천해줄까? 먹고 싶은 메뉴 고르면 식당도 알려줄게!"; 
     let websocket = null;
     let isWebSocketConnected = false;
     let ohengInfoShown = false;
@@ -335,7 +335,7 @@
         return div;
     }
     
-    // 일반 메시지(텍스트) 생성 (챗봇/본인/다른 사용자)
+    // 일반 텍스트 메시지 DOM 요소 생성
     function createTextMessage(msg) {
         const messageBox = document.createElement('div');
         const isAssistant = (msg.role === 'assistant');
@@ -345,10 +345,10 @@
         messageBox.className = `message-box ${isMyMessage ? 'user-message' : 'system-message'}`; 
 
         let bubbleContent;
-        const contentHtml = marked.parse(msg.content);
+        const contentHtml = marked.parse(msg.content); // AI 챗봇 답변 마크다운 파싱
 
         if (isAssistant) {
-            // 어시스턴트(챗봇) 메시지
+            // 챗봇 메시지 렌더링
             const bubbleDiv = document.createElement('div');
             bubbleDiv.className = 'message-bubble system-bubble';
             bubbleDiv.innerHTML = contentHtml;
@@ -356,26 +356,31 @@
             messageBox.appendChild(createProfileIcon(msg, true));
             messageBox.appendChild(bubbleDiv);
 
-            // 메시지 타입으로 버튼 표시 여부 결정
+
+            // '음식 추천 기준이 뭐야?' 버튼 표시 조건 판단
+
+            // a) 특수 메시지 타입 체크
             const isOhengInfo = msg.message_type === 'oheng_info';
             const isLocationSelect = msg.message_type === 'location_select';
             const isRestaurantCards = msg.message_type === 'restaurant_cards';
             const isHiddenInitial = msg.message_type === 'hidden_initial';
             
-            // oheng_info가 이미 표시되었는지 체크
+            // b) oheng_info(음식 추천 기준 메시지)가 이미 표시된 경우 플래그 설정 (버튼 중복 생성 방지)
             if (isOhengInfo) {
                 ohengInfoShown = true;
             }
-            
-            // 일반 텍스트 메시지(message_type이 'text'이거나 undefined)이고, 
-            // 오행 정보를 아직 안 본 경우에만 버튼 표시
-            const isRegularTextMessage = !msg.message_type || msg.message_type === 'text';
-            //const shouldShowButton = isRegularTextMessage && !ohengInfoShown;
-            
+
+            // c) 일반 텍스트 메시지인지 확인 (message_type이 없거나 'text'인 경우)
+            const isRegularTextMessage = !msg.message_type || msg.message_type === 'text';       
+            // d) 인사 메시지인지 확인 (greeting 타입)     
+            //const isGreeting = msg.message_type === 'greeting';
             const isGreeting = msg.content === greetingMessage;
+
+            // 버튼 표시 조건: 일반 텍스트 메시지이고, 아직 음식 추천 기준 메시지가 없으며, 인사 메시지가 아닌 경우
             const shouldShowButton = isRegularTextMessage && !ohengInfoShown && !isGreeting;
 
             if (shouldShowButton) {
+                // 버튼을 한 번 표시했으므로 플래그 설정 (버튼 중복 생성 방지)
                 ohengInfoShown = true;
                 
                 const ohengButton = document.createElement('button');
@@ -389,7 +394,8 @@
                     margin-top: 8px;
                     border: none;
                 `;
-                                
+                
+                // 버튼 클릭 시 오행 정보 요청 전송
                 ohengButton.onclick = function() {
                     messageInput.value = '[REQUEST_OHENG_INFO]';
                     sendMessage();
@@ -402,7 +408,7 @@
                 bubbleDiv.appendChild(buttonContainer);
             }
         } else if (isMyMessage) {
-            // 본인 메시지
+            // 본인 메시지 렌더링
             const bubbleDiv = document.createElement('div');
             bubbleDiv.className = 'message-bubble user-bubble';
             bubbleDiv.innerHTML = contentHtml;
@@ -410,7 +416,7 @@
             messageBox.appendChild(bubbleDiv);
 
         } else {
-            // 다른 사용자 메시지
+            // 다른 사용자 메시지 렌더링
             const senderName = msg.sender_name || '알 수 없음';
             const bubbleDiv = document.createElement('div');
             bubbleDiv.className = 'message-bubble system-bubble';
@@ -772,7 +778,7 @@
     }
     
     // 기존 채팅방의 메시지를 렌더링
-   async function loadMessages(roomId, container) {
+    async function loadMessages(roomId, container) {
         if (!idToken || !roomId || String(roomId).toLowerCase() === 'null') {
             console.error("메시지 로드 오류: 유효하지 않은 방 또는 토큰");
             container.innerHTML = ''; 
@@ -795,19 +801,12 @@
             }
 
             const data = await res.json();
-
             const messages = Array.isArray(data) ? data : data.messages || [];
 
             setRoomTypeUI(data); // 방의 타입(그룹/1:1)에 따라 제목, placeholder 설정
 
             ohengInfoShown = messages.some(msg => msg.message_type === 'oheng_info');
 
-            messages.forEach(msg => {
-                if (msg.message_type === 'oheng_info') {
-                    ohengInfoShown = true;
-                }
-            });
-            
             container.innerHTML = ''; 
 
             messages.forEach(msg => {
@@ -1106,6 +1105,7 @@
         const urlRoomId = getRoomIdFromUrl();
 
         initializeKakaoPlaces();
+        
         if (urlRoomId) {
             currentRoomId = urlRoomId;
             await loadMessages(urlRoomId, chatArea);
