@@ -118,7 +118,7 @@
                             <div class="profile-image-container flex-shrink-0 w-auto max-w-[122px]">
                                 <img id="user-profile-image"
                                     class="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover border-4 border-white"
-                                    src="https://bapick-s3-bucket.s3.ap-northeast-2.amazonaws.com/default/default_profile.png"
+                                    src="assets/images/default-profile.jpg"
                                     alt="프로필 사진">
                             </div>
 
@@ -198,11 +198,11 @@
                     <h3 class="text-xl font-bold text-gray-800 text-left">오늘의 포춘쿠키</h3>
 
                     <div id="closedCookieSection" class="flex flex-col items-center">
-                        <img src="close fortune cookie.png" alt="닫힌 포춘 쿠키" class="w-40 mx-auto animate-pulse">
+                        <img src="assets/images/fortune-cookie-closed.png" alt="닫힌 포춘 쿠키" class="w-40 mx-auto animate-pulse">
                     </div>
 
                     <div id="openedCookieSection" class="hidden flex flex-col items-center text-center">
-                        <img src="open fortune cookie.png" alt="열린 포춘 쿠키" class="w-60 mx-auto animate-fadeIn">
+                        <img src="assets/images/fortune-cookie-open.png" alt="열린 포춘 쿠키" class="w-60 mx-auto animate-fadeIn">
                         <p id="fortuneMessage" class="text-sm font-semibold text-gray-700 leading-relaxed mt-6"></p>
                     </div>
 
@@ -326,7 +326,7 @@
     <!-- FAB 버튼-->
     <a href="chat.html" id="secondary-action-btn"
         class="fixed bottom-20 right-6 w-16 h-16 bg-[#FFF6E2] hover:bg-orange-600 text-white rounded-full flex items-center justify-center shadow-lg transition-transform transform hover:scale-110 z-40"
-        style="background-image: url('logo_bapick.png'); background-size: 132%; background-repeat: no-repeat; background-position: center 0.5%;">
+        style="background-image: url('assets/images/logo-main.png'); background-size: 132%; background-repeat: no-repeat; background-position: center 0.5%;">
     </a>
 
     <div id="overlay" class="fixed inset-0 bg-black bg-opacity-30 z-40 hidden"></div>
@@ -339,7 +339,10 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
 
-        const fastapiUrl = "https://bapick.duckdns.org"
+        //const fastapiUrl = "https://bapick.duckdns.org"
+        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        //const fastapiUrl = "https://bapick.duckdns.org";
+        const fastapiUrl = isLocal ? "http://127.0.0.1:8000" : "https://bapick.duckdns.org";
 
         const userNameEl = document.getElementById('user-nickname');
         const userbirthdateEl = document.getElementById('user-birthdate');
@@ -465,7 +468,7 @@
 
         // 근처 식당 정보 렌더링
         const renderRestaurantCard = (restaurant) => {
-            const defaultImageUrl = 'Untitled.png';
+            const defaultImageUrl = 'assets/images/restaurant-default.png';
             let imageUrl = defaultImageUrl;
 
             // 이미지 렌더링: image가 문자열인 동시에 비어있지 않은 경우 첫 번째 이미지 렌더링

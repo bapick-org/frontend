@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="logo_bapick copy.png">
-    <link rel="apple-touch-icon" href="logo_bapick copy.png">
-    <title>밥픽 - 로그인 화면</title>
+    <link rel="icon" href="assets/images/logo-bg-orange.png">
+    <link rel="apple-touch-icon" href="assets/images/logo-bg-orange.png">
+    <title>밥픽</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
@@ -224,7 +224,8 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
 
-        const fastapiUrl = "https://bapick.duckdns.org"
+        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        const fastapiUrl = isLocal ? "http://127.0.0.1:8000" : "https://bapick.duckdns.org";
 
         // ui 요소
         const loginForm = document.getElementById('login-form-container');
