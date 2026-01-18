@@ -173,7 +173,7 @@
     <!-- FAB (1:1 챗봇 채팅방으로 바로 이동)-->
     <a href="chat.html" id="secondary-action-btn"
         class="fixed bottom-20 right-6 w-16 h-16 bg-[#FFF6E2] hover:bg-orange-600 text-white rounded-full flex items-center justify-center shadow-lg transition-transform transform hover:scale-110 z-40"
-        style="background-image: url('logo_bapick.png'); background-size: 132%; background-repeat: no-repeat; background-position: center 0.5%;">
+        style="background-image: url('assets/images/logo-main.png'); background-size: 132%; background-repeat: no-repeat; background-position: center 0.5%;">
     </a>
 
     <script type="module">
@@ -187,8 +187,8 @@
         const fastapiUrl = "https://bapick.duckdns.org"
 
         let currentUser = null;
-        const NO_IMAGE_URL = 'Untitled.png'; // 스크랩된 식당은 있으나 식당 이미지가 없을 때
-        const EMPTY_COLLECTION_IMAGE = 'no_scraps.png'; // 스크랩이 0개일 때 (컬렉션을 채워주세요)
+        const NO_IMAGE_URL = 'assets/images/restaurant-default.png'; // 스크랩된 식당은 있으나 식당 이미지가 없을 때
+        const EMPTY_COLLECTION_IMAGE = 'assets/images/empty-collection.png'; // 스크랩이 0개일 때 (컬렉션을 채워주세요)
 
         const headerAddButton = document.getElementById('header-add-button');
         const collectionSheet = document.getElementById('collection-sheet');
