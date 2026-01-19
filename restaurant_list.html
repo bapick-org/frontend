@@ -4,11 +4,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>주변 맛집 전체보기</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
+    <link rel="manifest" href="/assets/icons/site.webmanifest">
+    <link rel="shortcut icon" href="/assets/icons/favicon.ico">
+    <title>주변 맛집 전체보기 - Bapick</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap">
-    <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -62,7 +66,7 @@
 
         // 식당 카드 생성
         const renderRestaurantCard = (restaurant) => {
-            const defaultImageUrl = 'assets/images/restaurant-default.png'; 
+            const defaultImageUrl = '/assets/images/restaurant-default.png'; 
             let imageUrl = defaultImageUrl;
 
             // 이미지 처리 로직

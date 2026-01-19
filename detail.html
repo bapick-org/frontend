@@ -3,7 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>식당 상세 정보</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
+    <link rel="manifest" href="/assets/icons/site.webmanifest">
+    <link rel="shortcut icon" href="/assets/icons/favicon.ico">
+    <title>식당 상세 정보 - Bapick</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=85cfe1eb44a56817dcedc87a46b5070b&libraries=services"></script>
@@ -290,8 +295,8 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
 
-        const fastapiUrl = "https://bapick.duckdns.org"
-
+        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        const fastapiUrl = isLocal ? "http://127.0.0.1:8000" : "https://bapick.duckdns.org";
 
         let currentRestaurant = null;
         let currentUser = null;
@@ -492,7 +497,7 @@
 
         /* 식당 정보 렌더링 함수들 (이미지, 리뷰 정보, 메뉴, 편의시설, 운영시간) */
         function renderImage(image) {
-            const defalutImages = 'assets/images/restaurant-default.png'; // 기본 이미지
+            const defalutImages = '/assets/images/restaurant-default.png'; // 기본 이미지
 
             let images = [];
 

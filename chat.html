@@ -3,7 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat App UI</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
+    <link rel="manifest" href="/assets/icons/site.webmanifest">
+    <link rel="shortcut icon" href="/assets/icons/favicon.ico">
+    <title>채팅 - Bapick</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=85cfe1eb44a56817dcedc87a46b5070b&libraries=services,places"></script>
@@ -246,8 +251,8 @@
     let currentRoomId = null;
     let isCreatingRoom = false;
     let currentChatroomIsGroup = false;
-    const defaultProfileImg = "assets/images/default-profile.jpg"; // 프로필 이미지를 설정하지 않은 경우
-    let chatbotProfileImg = 'assets/images/logo-bg-orange.png'; 
+    const defaultProfileImg = "/assets/images/default-profile.jpg"; // 프로필 이미지를 설정하지 않은 경우
+    let chatbotProfileImg = '/assets/images/logo-bg-orange.png'; 
     const greetingMessage = "안녕! 나는 오늘의 운세에 맞춰 행운의 맛집을 추천해주는 밥풀이야🍀 지금 너한테 딱 맞는 메뉴 추천해줄까?"; 
     let websocket = null;
     let isWebSocketConnected = false;
@@ -436,7 +441,7 @@
 
     // 단일 식당 카드 생성
     function createRestaurantCard(restaurant, index) {        
-        let imageUrl = 'assets/images/logo-bg-orange.png'; // 기본 이미지
+        let imageUrl = '/assets/images/logo-bg-orange.png'; // 기본 이미지
         
         if (restaurant.image) {
             imageUrl = restaurant.image;
@@ -456,11 +461,11 @@
 
         return `
             <a href="detail.html?id=${restaurant.id}" class="restaurant-card overflow-hidden">
-                <img 
+                <img ㄴ
                     src="${imageUrl}" 
                     alt="${restaurant.name} 이미지" 
                     class="w-full h-32 object-cover rounded-t-lg"
-                    onerror="console.error('Image load failed:', this.src); this.src='assets/images/logo-bg-orange.png';"
+                    onerror="console.error('Image load failed:', this.src); this.src='/assets/images/logo-bg-orange.png';"
                 >
                 <div class="p-3">
                     <h3 class="font-bold text-lg text-gray-900 truncate">${index + 1}. ${restaurant.name}</h3>

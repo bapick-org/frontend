@@ -3,7 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>공지사항</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
+    <link rel="manifest" href="/assets/icons/site.webmanifest">
+    <link rel="shortcut icon" href="/assets/icons/favicon.ico">
+    <title>공지사항 - Bapick</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -36,13 +41,12 @@
     </style>
 </head>
 <body class="bg-white">
- 
     <div class="h-full flex flex-col">
         
         <header class="grid grid-cols-3 items-center p-4 border-b border-gray-200 flex-shrink-0">
             <div>
                 <a href="mypage.index.html" class="text-gray-600 hover:text-gray-900">
-                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 19l-7-7 7-7"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 19l-7-7 7-7"/></svg>
                 </a>
             </div>
             <h1 class="text-xl font-bold text-center text-gray-800">공지사항</h1>
@@ -64,95 +68,5 @@
             </div>
         </main>
     </div>
-    
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
-        import { getFirestore, collection, query, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
-
-        
-        const firebaseConfig = {
-          apiKey: "AIzaSyAlmVXljDPwkmi4rik69GLhBIHLskw7P2o",
-          authDomain: "bapick-front.firebaseapp.com",
-          projectId: "bapick-front",
-          storageBucket: "bapick-front.firebasestorage.app",
-          messagingSenderId: "883956844611",
-          appId: "1:883956844611:web:ac74a589aae30be9d0ecf6",
-          measurementId: "G-Z1WEHMPL7F"
-        };
-        
-        
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
-        const announcementsList = document.getElementById('announcements-list');
-        const emptyMessage = document.getElementById('empty-message');
-
-        // --- 로그인 상태 확인 ---
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                console.log("로그인된 사용자:", user.uid);
-                loadAnnouncements();
-            } else {
-                window.location.href = 'index.html';
-            }
-        });
-
-        // --- 공지사항 불러오기 ---
-        async function loadAnnouncements() {
-            const announcementsRef = collection(db, "announcements");
-            const q = query(announcementsRef, orderBy("createdAt", "desc")); // 최신순으로 정렬
-
-            const querySnapshot = await getDocs(q);
-            
-            announcementsList.innerHTML = ''; // 목록 비우기
-
-            if (querySnapshot.empty) {
-                emptyMessage.classList.remove('hidden');
-                emptyMessage.classList.add('flex');
-            } else {
-                querySnapshot.forEach((doc) => {
-                    const announcement = doc.data();
-                    const item = createAnnouncementItem(announcement);
-                    announcementsList.appendChild(item);
-                });
-            }
-        }
-
-        // --- 공지사항 항목 HTML 생성 ---
-        function createAnnouncementItem(data) {
-            const detailElement = document.createElement('details');
-            detailElement.className = 'bg-white p-4';
-
-            const summaryElement = document.createElement('summary');
-            summaryElement.className = 'cursor-pointer flex justify-between items-center';
-            
-            const titleDiv = document.createElement('div');
-            const title = document.createElement('p');
-            title.className = 'font-semibold text-gray-800';
-            title.textContent = data.title;
-            
-            const date = document.createElement('p');
-            date.className = 'text-sm text-gray-500 mt-1';
-            // Firestore Timestamp를 날짜 형식으로 변환
-            date.textContent = data.createdAt.toDate().toLocaleDateString('ko-KR');
-            
-            titleDiv.appendChild(title);
-            titleDiv.appendChild(date);
-            
-            summaryElement.appendChild(titleDiv);
-
-            const content = document.createElement('div');
-            content.className = 'mt-4 pt-4 border-t text-gray-600';
-            content.innerHTML = data.content; // HTML 태그를 허용하려면 innerHTML 사용
-
-            detailElement.appendChild(summaryElement);
-            detailElement.appendChild(content);
-
-            return detailElement;
-        }
-
-    </script>
 </body>
 </html>

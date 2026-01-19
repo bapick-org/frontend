@@ -3,7 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>밥픽 - 마이페이지</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
+    <link rel="manifest" href="/assets/icons/site.webmanifest">
+    <link rel="shortcut icon" href="/assets/icons/favicon.ico">
+    <title>마이페이지 - Bapick</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -55,7 +60,7 @@
             <div class="w-full">
                 <section class="bg-white flex items-center p-5 border-b-8 border-gray-100">
                     <div class="w-16 h-16 rounded-full mr-4 flex-shrink-0 overflow-hidden bg-gray-200">
-                        <img id="user-display-profile-image" class="w-full h-full object-cover" src="assets/images/default-profile.jpg" alt="프로필 사진">
+                        <img id="user-display-profile-image" class="w-full h-full object-cover" src="/assets/images/default-profile.jpg" alt="프로필 사진">
                     </div>
                     <div class="flex-1">
                         <a href="profile_edit.html" class="text-lg font-bold text-gray-800 flex items-center">
@@ -161,7 +166,6 @@
         const auth = getAuth(app);
 
         const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-        //const fastapiUrl = "https://bapick.duckdns.org";
         const fastapiUrl = isLocal ? "http://127.0.0.1:8000" : "https://bapick.duckdns.org";
 
         // DOM 요소 로드

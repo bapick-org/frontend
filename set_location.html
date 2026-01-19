@@ -3,7 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>위치 설정</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
+    <link rel="manifest" href="/assets/icons/site.webmanifest">
+    <link rel="shortcut icon" href="/assets/icons/favicon.ico">
+    <title>위치 설정 - Bapick</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=85cfe1eb44a56817dcedc87a46b5070b&libraries=services,places"></script>
     <style>
@@ -60,7 +65,7 @@
     </div>
 
     <script>
-        // ✅ [추가] 커스텀 토스트 함수 정의
+        // 커스텀 토스트 함수 정의
         const customToast = document.getElementById('custom-toast');
         const toastDuration = 2500; 
 
@@ -78,7 +83,7 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             const mapContainer = document.getElementById('map');
-            const saveButton = document.getElementById('save-location-btn'); // DOM 요소는 여기서 가져옵니다.
+            const saveButton = document.getElementById('save-location-btn');
             const gpsButton = document.getElementById('gps-btn');
             let map, marker;
             let currentLocationData = null; 
@@ -94,8 +99,7 @@
             }
 
             function onErrorGPS(error) {
-                // alert("현재 위치를 가져올 수 없습니다. 기본 위치로 지도를 표시합니다."); // ❌ [삭제]
-                showCustomToast("현재 위치를 가져올 수 없습니다."); // ✅ [수정] 토스트로 변경
+                showCustomToast("현재 위치를 가져올 수 없습니다.");
                 initializeMap(37.566826, 126.9786567);
             }
 
@@ -208,8 +212,7 @@
                         (error) => {
                             // GPS 실패 처리
                             console.error(`Geolocation error: ${error.code} - ${error.message}`);
-                            // alert('GPS 현재 위치를 찾을 수 없습니다. (권한 거부 또는 오류)'); // ❌ [삭제]
-                            showCustomToast('GPS 현재 위치를 찾을 수 없습니다. (권한 거부 또는 오류)'); // ✅ [수정] 토스트로 변경
+                            showCustomToast('GPS 현재 위치를 찾을 수 없습니다. (권한 거부 또는 오류)');
                             saveButton.textContent = '위치 저장';
                             saveButton.disabled = false;
                         },
@@ -220,8 +223,7 @@
                         }
                     );
                 } else {
-                    // alert('이 브라우저는 GPS Geolocation 기능을 지원하지 않습니다.'); // ❌ [삭제]
-                    showCustomToast('이 브라우저는 GPS Geolocation 기능을 지원하지 않습니다.'); // ✅ [수정] 토스트로 변경
+                    showCustomToast('이 브라우저는 GPS Geolocation 기능을 지원하지 않습니다.');
                     saveButton.textContent = '위치 저장';
                     saveButton.disabled = false;
                 }
@@ -230,8 +232,7 @@
             function searchPlaces() {
                 const keyword = document.getElementById('address-input').value;
                 if (!keyword.trim()) {
-                    // alert('키워드를 입력해주세요.'); // ❌ [삭제]
-                    showCustomToast('키워드를 입력해주세요.'); // ✅ [수정] 토스트로 변경
+                    showCustomToast('키워드를 입력해주세요.');
                     return;
                 }
 
@@ -252,12 +253,10 @@
                         };
                         
                     } else if (status === kakao.maps.services.Status.ZERO_RESULT) {
-                        // alert('검색 결과가 존재하지 않습니다.'); // ❌ [삭제]
-                        showCustomToast('검색 결과가 존재하지 않습니다.'); // ✅ [수정] 토스트로 변경
+                        showCustomToast('검색 결과가 존재하지 않습니다.');
                         currentLocationData = null;
                     } else {
-                        // alert('검색 중 오류가 발생했습니다.'); // ❌ [삭제]
-                        showCustomToast('검색 중 오류가 발생했습니다.'); // ✅ [수정] 토스트로 변경
+                        showCustomToast('검색 중 오류가 발생했습니다.');
                         currentLocationData = null;
                     }
                 });
@@ -266,8 +265,7 @@
             document.getElementById('save-location-btn').addEventListener('click', () => {
                 if (currentLocationData) {
                     localStorage.setItem('savedBapickLocation', JSON.stringify(currentLocationData));
-                    // alert(`'${currentLocationData.name}' 위치가 저장되었습니다!`); // ❌ [삭제]
-                    showCustomToast(`'${currentLocationData.name}' 위치가 저장되었습니다!`); // ✅ [수정] 토스트로 변경
+                    showCustomToast(`'${currentLocationData.name}' 위치가 저장되었습니다!`);
                     
                     // returnTo 쿼리 파라미터 확인 후 이동 경로 설정
                     const urlParams = new URLSearchParams(window.location.search);
@@ -282,8 +280,7 @@
                         window.location.href = 'home.html';
                     }
                 } else {
-                    // alert('위치를 검색하거나, 우측 상단 GPS 버튼을 눌러 현재 위치를 설정해주세요.'); // ❌ [삭제]
-                    showCustomToast('위치를 검색하거나, GPS 버튼을 눌러 위치를 설정해주세요.'); // ✅ [수정] 토스트로 변경
+                    showCustomToast('위치를 검색하거나, GPS 버튼을 눌러 위치를 설정해주세요.');
                 }
             });
 
