@@ -46,10 +46,10 @@
                 </button>
             </p>
 
-            <!-- (수정) '게스트로 입장' 버튼 -->
+            <!-- '게스트로 입장' 버튼 -->
             <p class="text-center text-sm text-gray-600 mt-2">
                 또는
-                <button onclick="handleGuestLogin()" class="font-medium text-gray-500 hover:text-gray-700 underline">
+                <button onclick="showGuestSignupForm()" class="font-medium text-gray-500 hover:text-gray-700 underline">
                     게스트로 입장
                 </button>
             </p>
@@ -71,7 +71,7 @@
             </div>
             <div class="mb-4">
                 <label for="nickname-register" class="block text-sm font-medium text-gray-700">닉네임</label>
-                <input type="text" id="nickname-register" placeholder="닉네임" class="mt-1 block w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-[#FF7242] focus:border-[#FF7242]" placeholder="닉네임">
+                <input type="text" id="nickname-register" placeholder="닉네임(2자~10자)" minlength="2" maxlength="10" class="mt-1 block w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-[#FF7242] focus:border-[#FF7242]">
             </div>
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700">성별</label>
@@ -131,7 +131,7 @@
             </p>
         </div>
 
-        <!-- (추가) 게스트용 폼 -->
+        <!-- 게스트용 폼 -->
         <div id="guest-form-container" class="space-y-4 hidden transition-opacity duration-300">
             <h2 class="text-xl font-semibold text-center text-gray-700">게스트로 시작하기</h2>
             <p class="text-center text-sm text-gray-500">간단한 정보를 입력해주세요.</p>
@@ -191,7 +191,7 @@
 
             <!-- 시작하기 버튼 -->
             <div>
-                <button onclick="handleGuestStart()" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-[#FF7242] hover:bg-[#E0653B] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF7242]">
+                <button onclick="handleGuestRegister()" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-[#FF7242] hover:bg-[#E0653B] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF7242]">
                     Bapick! 시작하기
                 </button>
             </div>
@@ -233,7 +233,7 @@
         // ui 요소
         const loginForm = document.getElementById('login-form-container');
         const registerForm = document.getElementById('register-form-container');
-        const guestForm = document.getElementById('guest-form-container'); // (추가) 게스트 폼
+        const guestForm = document.getElementById('guest-form-container'); // 게스트 폼
         const messageModal = document.getElementById('message-modal');
         const messageText = document.getElementById('message-text');
 
@@ -242,7 +242,7 @@
         const minuteInput = document.getElementById("birth-minute");
         const unknownTimeCheckbox = document.getElementById("unknown-time");
 
-        // (추가) 게스트 폼 입력란
+        // 게스트 폼 입력란
         const guestHourInput = document.getElementById("guest-birth-hour");
         const guestMinuteInput = document.getElementById("guest-birth-minute");
         const guestUnknownTimeCheckbox = document.getElementById("guest-unknown-time");
@@ -258,25 +258,25 @@
 
         function showRegisterForm() {
             loginForm.classList.add('hidden');
-            guestForm.classList.add('hidden'); // (추가) 게스트 폼 숨기기
+            guestForm.classList.add('hidden'); // 게스트 폼 숨기기
             registerForm.classList.remove('hidden');
         }
 
         function showLoginForm() {
             registerForm.classList.add('hidden');
-            guestForm.classList.add('hidden'); // (추가) 게스트 폼 숨기기
+            guestForm.classList.add('hidden'); // 게스트 폼 숨기기
             loginForm.classList.remove('hidden');
         }
 
-        // (추가) 게스트 로그인 폼 보여주기
-        function handleGuestLogin() {
+        // 게스트 로그인 폼 보여주기
+        function showGuestSignupForm() {
             loginForm.classList.add('hidden');
             registerForm.classList.add('hidden');
             guestForm.classList.remove('hidden'); // 게스트 폼 보이기
         }
 
-        // (수정) 게스트 폼 '시작하기' 처리
-        async function handleGuestStart() {
+        // 게스트 회원가입 처리
+        async function handleGuestRegister() {
             const nickname = document.getElementById('guest-nickname').value.trim();
             const gender = document.querySelector('input[name="guest-gender"]:checked').value;
             const birthDate = document.getElementById('guest-birthdate-input').value;
@@ -285,7 +285,6 @@
             const birthMinute = guestMinuteInput.value.trim();
             const timeUnknown = guestUnknownTimeCheckbox.checked;
 
-            // 유효성 검사
             if (!nickname || !birthDate) {
                 showMessage("닉네임과 생년월일을 모두 입력해주세요.");
                 return;
@@ -296,12 +295,10 @@
             }
 
             try {
-                // 1. Firebase 익명 로그인 시도
                 const userCredential = await signInAnonymously(auth);
                 const user = userCredential.user;
                 const idToken = await user.getIdToken();
 
-                // 2. 백엔드로 데이터 전송 준비
                 const payload = {
                     nickname,
                     gender,
@@ -312,34 +309,32 @@
                     timeUnknown
                 };
 
-                // 3. 백엔드 API 호출 (/auth/guest-login)
-                const response = await fetch(`${fastapiUrl}/api/auth/guest-login`, {
+                const response = await fetch(`${fastapiUrl}/api/auth/guest`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
-                        "Authorization": `Bearer ${idToken}` // 익명 사용자 토큰 전송
+                        "Authorization": `Bearer ${idToken}`
                     },
-                    credentials: "include", // 쿠키 설정을 위해 필요
+                    credentials: "include",
                     body: JSON.stringify(payload)
                 });
 
+                const result = await response.json();
+
                 if (response.ok) {
-                    // 성공 시 바로 홈 화면 이동
                     window.location.href = 'home.html';
                 } else {
-                    const errorData = await response.json();
-                    showMessage("게스트 로그인 오류: " + (errorData.detail || "알 수 없는 오류"));
+                    showMessage(result.message || "게스트 로그인 중 오류가 발생했습니다.");
                 }
 
             } catch (error) {
-                console.error("게스트 로그인 에러:", error);
-                showMessage("게스트 로그인 중 오류가 발생했습니다.");
+                showMessage("게스트 로그인 중 오류가 발생했습니다: " + error.message);
             }
         }
 
     
         // --- 이벤트 리스너 ---
-        // (기존) 회원가입 폼 시간 입력 리스너
+        // 회원가입 폼 시간 입력 리스너
         hourInput.addEventListener("input", (e) => {
             e.target.value = e.target.value.replace(/\D/g,''); // 숫자만
             if (e.target.value.length >= 2) {
@@ -361,7 +356,7 @@
             }
         });
 
-        // (추가) 게스트 폼 시간 입력 리스너
+        // 게스트 폼 시간 입력 리스너
         guestHourInput.addEventListener("input", (e) => {
             e.target.value = e.target.value.replace(/\D/g,''); // 숫자만
             if (e.target.value.length >= 2) {
@@ -383,7 +378,7 @@
             }
         });
 
-        // 회원가입
+        // 회원가입 처리
         async function handleRegister() {
             const email = document.getElementById('email-register').value;
             const password = document.getElementById('password-register').value;
@@ -394,10 +389,15 @@
             const birthCalendar = document.getElementById('birth_calendar').value;
             const birthHour = hourInput.value;
             const birthMinute = minuteInput.value;
-            const timeUnknown = unknownTimeCheckbox.checked; // 출생시간 모름 체크 여부
+            const timeUnknown = unknownTimeCheckbox.checked;
 
             if (!email || !password || !confirmPassword || !nickname || !birthDate) {
                 showMessage("이메일, 비밀번호, 닉네임, 생년월일을 모두 입력해주세요.");
+                return;
+            }
+
+            if (nickname.length < 2 || nickname.length > 10) {
+                showMessage("닉네임은 2자 이상 10자 이하로 입력해주세요.");
                 return;
             }
 
@@ -417,12 +417,10 @@
             }
 
             try {
-                // firebase 계정 생성 -> id Token 발급
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
                 const idToken = await user.getIdToken();
 
-                // 서버로 전송할 JSON payload
                 const payload = {
                     email,
                     nickname,
@@ -434,40 +432,34 @@
                     timeUnknown,
                 };
 
-                // 백엔드 register API: idToken 검증 -> DB에 회원 정보 저장
-                const response = await fetch(`${fastapiUrl}/api/auth/register`, {
+                const response = await fetch(`${fastapiUrl}/api/auth/signup`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
-                        "Authorization": `Bearer ${idToken}` // idToken은 Authorization header로 전달
+                        "Authorization": `Bearer ${idToken}`
                     },
                     body: JSON.stringify(payload)
                 });
 
+                const result = await response.json();
+
                 if (response.ok) {
-                    //showMessage("회원가입 성공!");
-                    //messageModal.querySelector('button').onclick = () => {
-                    //    closeModal();
-                    //    showLoginForm();
-                    //};
                     window.location.href = 'home.html';
                 } else {
-                    showMessage("서버 저장 중 오류가 발생했습니다.");
+                    showMessage(result.message || "회원가입 처리 중 오류가 발생했습니다.");
                 }
 
             } catch (error) {
-                console.error("회원가입 에러: ", error);
-
-                // Firebase Auth에서 발생한 에러
+                // Firebase Auth 에러
                 if (error.code === 'auth/email-already-in-use') {
                     showMessage("이미 사용 중인 이메일입니다.");
                 } else {
-                    showMessage("오류가 발생했습니다: " + error.message);
+                    showMessage("회원가입 중 오류가 발생했습니다: " + error.message);
                 }
             }
         }
 
-        // 로그인
+        // 로그인 처리
         async function handleLogin() {
             const email = document.getElementById('email-login').value;
             const password = document.getElementById('password-login').value;
@@ -482,31 +474,25 @@
                 const user = userCredential.user;
                 const idToken = await user.getIdToken();
 
-                // 백엔드 login API: idToken 검증 -> 세션/쿠키 발급
                 const response = await fetch(`${fastapiUrl}/api/auth/login`, {
                     method: "POST",
                     headers: { "Authorization": `Bearer ${idToken}` },
-                    credentials: "include" // 브라우저에 쿠키 자동 저장
+                    credentials: "include"
                 });
 
-                if (response.ok) {
-                    const data = await response.json();
+                const result = await response.json();
 
+                if (response.ok) {
                     window.location.href = 'home.html';
-                    //showMessage("로그인 성공!");
-                    //messageModal.querySelector('button').onclick = () => {
-                    //    closeModal();
-                    //    window.location.href = 'home.html';
-                    //};
                 } else {
-                    showMessage("서버 인증 실패");
+                    showMessage(result.message || "서버에 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
                 }
             } catch (error) {
                 // Firebase Auth 에러
                 if (error.code === 'auth/invalid-login-credentials') {
                     showMessage("이메일 또는 비밀번호가 올바르지 않습니다.");
                 } else {
-                    showMessage("오류가 발생했습니다: " + error.message);
+                    showMessage("로그인 중 오류가 발생했습니다: " + error.message);
                 }
             }
         }
@@ -516,8 +502,8 @@
         window.handleRegister = handleRegister;
         window.showRegisterForm = showRegisterForm;
         window.showLoginForm = showLoginForm;
-        window.handleGuestLogin = handleGuestLogin; // (추가)
-        window.handleGuestStart = handleGuestStart; // (추가)
+        window.showGuestSignupForm = showGuestSignupForm
+        window.handleGuestRegister = handleGuestRegister;
         window.closeModal = closeModal;
     </script>
 </body>
