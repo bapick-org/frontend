@@ -78,21 +78,19 @@
         const auth = getAuth(app);
 
         const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-        const fastapiUrl = isLocal ? "http://127.0.0.1:8000" : "https://bapick.duckdns.org";
+        const API_URL = isLocal ? "http://127.0.0.1:8000" : "https://bapick.duckdns.org";
 
         const profileImageUpload = document.getElementById('profile-image-upload');
         const profileImagePreview = document.getElementById('profile-image-preview');
         const nicknameInput = document.getElementById('nickname');
         const saveProfileBtn = document.getElementById('save-profile-btn');
-
-        // ✅ [추가] 토스트 관련 변수 정의
         const customToast = document.getElementById('custom-toast');
-        const toastDuration = 2500; 
-        
+
         let currentUser = null;
         let selectedFile = null;
+        const toastDuration = 2500; 
         
-        // ✅ [추가] 커스텀 토스트 함수 정의 (기존 showMessage, closeModal 대체)
+        // 커스텀 토스트 함수 정의
         function showCustomToast(message) {
             customToast.textContent = message;
             customToast.classList.remove('opacity-0', 'pointer-events-none');
@@ -114,30 +112,39 @@
             }
         });
 
-        // ❌ 기존 showMessage, closeModal 함수는 삭제되었습니다.
-        // ❌ closeBtn.addEventListener('click', closeModal); 이벤트 리스너는 삭제되었습니다.
-
-        // 유저 정보 로드
+        // 유저 정보 조회 (프로필 이미지, 닉네임)
         async function loadUserProfile(user) {
             try {
                 const idToken = await user.getIdToken();
 
+                // 1. 필요한 필드만 쿼리 파라미터로 요청
                 const fields = ['nickname', 'profileImage'];
-                const res = await fetch(`${fastapiUrl}/api/users/me?fields=${fields.join(',')}`, {
+                const res = await fetch(`${API_URL}/api/users/me?fields=${fields.join(',')}`, {
                     headers: {
                         'Authorization': `Bearer ${idToken}`
                     }
                 });
 
-                if (!res.ok) throw new Error(`API error: ${res.status}`);
+                // 2. 표준 에러 규격 처리
+                if (!res.ok) {
+                    const errorData = await res.json();
+                    throw new Error(errorData.message || `프로필 로드에 실패했습니다.`);
+                }
+
                 const data = await res.json();
 
-                // UI 업데이트
-                nicknameInput.value = data.nickname || '';
-                profileImagePreview.src = data.profileImage;
+                // 3. 닉네임 업데이트
+                if (data.nickname !== undefined) {
+                    nicknameInput.value = data.nickname;
+                }
+
+                // 4. 프로필 이미지 처리
+                // data.profileImage가 null이면 로컬의 default-profile.jpg를 사용
+                profileImagePreview.src = data.profileImage || '/assets/images/default-profile.jpg';
             } catch (err) {
-                console.error('유저 정보 로드 실패:', err);
-                // loadUserProfile 실패는 치명적이므로, 필요시 토스트로 알림 가능
+                if (typeof showCustomToast === 'function') {
+                    showCustomToast(`프로필 정보를 불러오지 못했습니다: ${err.message}`);
+                }
             }
         }
 
@@ -154,76 +161,96 @@
             }
         });
         
+        // 프로필 이미지 저장
         saveProfileBtn.addEventListener('click', async () => {
             if (!currentUser) return;
 
             saveProfileBtn.disabled = true;
             saveProfileBtn.textContent = '저장 중...';
 
-            let profile_image_s3_key = null;
+            let profileImageS3Key = null;
 
             try {
                 const idToken = await currentUser.getIdToken();
 
-                // Compressor로 압축 후 Pre-signed URL 업로드
+                // 1. S3에 프로필 이미지 업로드
                 if (selectedFile) {
+                    // 1) Compressor.js로 이미지 압축
                     const compressedFile = await new Promise((resolve, reject) => {
                         new Compressor(selectedFile, {
                             quality: 0.1,
-                            maxWidth: 1024,
-                            maxHeight: 1024,
+                            maxWidth: 512,
+                            maxHeight: 512,
                             success(result) { resolve(result); },
                             error(err) { reject(err); }
                         });
                     });
 
-                    // Pre-signed URL 요청
-                    const presignRes = await fetch(`${fastapiUrl}/api/users/generate-presigned-url`, {
+                    // 2) 백엔드에 Presigned URL 생성 요청
+                    const presignRes = await fetch(`${API_URL}/api/users/me/presigned-url`, {
                         method: 'POST',
-                        headers: { 'Authorization': `Bearer ${idToken}` },
-                        body: new URLSearchParams({
-                            filename: compressedFile.name,
-                            content_type: compressedFile.type
+                        headers: { 
+                            'Authorization': `Bearer ${idToken}`,
+                            'Content-Type': 'application/json' 
+                        },
+                        body: JSON.stringify({ 
+                            fileName: compressedFile.name,
+                            contentType: compressedFile.type
                         })
                     });
-                    if (!presignRes.ok) throw new Error('Presigned URL 생성 실패');
-                    const { presigned_url, s3_key } = await presignRes.json();
-                    profile_image_s3_key = s3_key;
+
+                    if (!presignRes.ok) {
+                        const errorData = await presignRes.json();
+                        throw new Error(errorData.message || '일시적인 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+                    }
+
+                    // 기본값(null 할당): undefined가 URL 문자열로 변환되어 잘못된 요청(405 에러)이 가는 것을 방지
+                    const { presignedUrl = null, s3Key = null } = await presignRes.json();
+                    // 응답은 성공했으나 필요한 데이터가 누락될 경우
+                    if (!presignedUrl || !s3Key) {
+                        throw new Error('업로드 경로 설정 중 오류가 발생했습니다.');
+                    }
+                    profileImageS3Key = s3Key;
 
                     // 브라우저에서 S3 직접 업로드
-                    const uploadRes = await fetch(presigned_url, {
+                    const uploadRes = await fetch(presignedUrl, {
                         method: 'PUT',
                         headers: { 'Content-Type': compressedFile.type },
                         body: compressedFile
                     });
-                    if (!uploadRes.ok) throw new Error('S3 업로드 실패');
+                    if (!uploadRes.ok) throw new Error('이미지 파일 전송에 실패했습니다. 네트워크 상태를 확인해 주세요.');
                 }
 
-                // PATCH로 닉네임/이미지 key 전송
-                const patchData = new URLSearchParams();
+                // 2. PATCH로 닉네임/이미지 key 전송
+                const patchBody = {};
                 const newNickname = nicknameInput.value.trim();
-                if (newNickname) patchData.append('nickname', newNickname);
-                if (profile_image_s3_key) patchData.append('profile_image_s3_key', profile_image_s3_key);
+                
+                if (newNickname) patchBody.nickname = newNickname;
+                if (profileImageS3Key) patchBody.profileImageS3Key = profileImageS3Key;
 
-                const patchRes = await fetch(`${fastapiUrl}/api/users/me`, {
+                const patchRes = await fetch(`${API_URL}/api/users/me`, {
                     method: 'PATCH',
-                    headers: { 'Authorization': `Bearer ${idToken}` },
-                    body: patchData
+                    headers: { 
+                        'Authorization': `Bearer ${idToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(patchBody)
                 });
-                if (!patchRes.ok) throw new Error('회원 정보 수정 실패');
+
+                if (!patchRes.ok) {
+                    const errorData = await patchRes.json();
+                    throw new Error(errorData.message || '회원 정보 수정에 실패했습니다.');
+                }
                 const patchResult = await patchRes.json();
 
                 // UI 갱신
-                if (patchResult.profile_image) profileImagePreview.src = patchResult.profile_image;
+                if (patchResult.profile_image) profileImagePreview.src = patchResult.profileImage;
                 if (patchResult.nickname) nicknameInput.value = patchResult.nickname;
 
-                // ✅ [수정] 성공 알림: showMessage 대신 토스트 사용
                 showCustomToast('프로필 편집이 완료됐습니다.'); 
-                selectedFile = null; // 완료 후 초기화
+                selectedFile = null;
             } catch (err) {
-                console.error(err);
-                // ✅ [수정] 실패 알림: alert() 대신 토스트 사용
-                showCustomToast(`프로필 편집 실패: ${err.message}`);
+                showCustomToast(err.message);
             } finally {
                 saveProfileBtn.disabled = false;
                 saveProfileBtn.textContent = '저장';

@@ -166,7 +166,7 @@
         const auth = getAuth(app);
 
         const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-        const fastapiUrl = isLocal ? "http://127.0.0.1:8000" : "https://bapick.duckdns.org";
+        const API_URL = isLocal ? "http://127.0.0.1:8000" : "https://bapick.duckdns.org";
 
         // DOM 요소 로드
         const overlay = document.getElementById('overlay');
@@ -179,7 +179,7 @@
         const userDisplayName = document.getElementById('user-display-name');
         const userDisplayProfileImage = document.getElementById('user-display-profile-image');
 
-        // ✅ [추가] 커스텀 토스트 관련 변수 및 함수 정의
+        // 커스텀 토스트 관련 변수 및 함수 정의
         const customToast = document.getElementById('custom-toast');
         const toastDuration = 2500; 
 
@@ -201,7 +201,6 @@
             addChatPopup.classList.remove('popup-visible');
             addChatPopup.classList.add('popup-hidden');
             logoutModal.classList.add('hidden');
-            // withdrawalModal.classList.add('hidden'); // 존재하지 않는 변수 제거
         }
 
         // (1) 유저 정보를 로드하는 비동기 함수
@@ -215,7 +214,7 @@
                 const idToken = await user.getIdToken();
 
                 const fields = ['nickname', 'profileImage'];
-                const res = await fetch(`${fastapiUrl}/api/users/me?fields=${fields.join(',')}`, {
+                const res = await fetch(`${API_URL}/api/users/me?fields=${fields.join(',')}`, {
                     headers: {
                         'Authorization': `Bearer ${idToken}`
                     }
@@ -226,8 +225,7 @@
 
                 // UI 업데이트
                 userDisplayName.textContent = data.nickname ? `${data.nickname}님` : '사용자';;
-                userDisplayProfileImage.src = data.profileImage;
-                
+                userDisplayProfileImage.src = data.profileImage || '/assets/images/default-profile.jpg'
             } catch (err) {
                 console.error('마이페이지 유저 정보 로드 실패:', err);
                 userDisplayName.textContent = '정보를 불러오지 못했습니다';
@@ -238,7 +236,7 @@
         // 이벤트 리스너
         // =======================================================
         
-        // ✅ [수정] 채팅 추가 버튼 클릭 시 (팝업 토글)
+        // 채팅 추가 버튼 클릭 시 (팝업 토글)
         addChatBtn.addEventListener('click', (event) => {
             event.stopPropagation();
             const isAddChatOpen = addChatPopup.classList.contains('popup-visible');
@@ -252,14 +250,14 @@
         
         overlay.addEventListener('click', closeAllPopups);
         
-        // ✅ [수정] 로그아웃 확인 버튼 클릭 시 (alert -> 토스트)
+        // 로그아웃 확인 버튼 클릭 시 (alert -> 토스트)
         confirmLogoutBtn.addEventListener('click', () => {
             signOut(auth).then(() => {
                 // 로그아웃 성공 후 로그인 페이지로 이동
                 window.location.href = 'index.html';
             }).catch((error) => {
                 console.error('로그아웃 에러:', error);
-                showCustomToast('로그아웃에 실패했습니다.'); // ✅ [수정] alert -> 토스트
+                showCustomToast('로그아웃에 실패했습니다.');
             });
         });
         

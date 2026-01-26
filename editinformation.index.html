@@ -110,7 +110,7 @@
                     <div class="flex items-center mt-1 space-x-4 w-full">
                         
                         <div id="birth-time-container" class="flex items-center justify-center w-24 border border-gray-300 rounded-lg bg-gray-50 p-3.5 text-gray-700">
-                            <input type="text" id="birth-hour" name="birth_hour" maxlength="2" placeholder="19" class="w-8 text-center bg-transparent focus:outline-none">
+                            <input type="text" id="birth-hour" name="birth_hour" maxlength="2" placeholder="00" class="w-8 text-center bg-transparent focus:outline-none">
                             <span class="text-gray-700 mx-0.5">:</span>
                             <input type="text" id="birth-minute" name="birth_minute" maxlength="2" placeholder="00" class="w-8 text-center bg-transparent focus:outline-none">
                         </div>
@@ -154,12 +154,12 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
 
-        const fastapiUrl = "https://bapick.duckdns.org"
+        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        const API_URL = isLocal ? "http://127.0.0.1:8000" : "https://bapick.duckdns.org";
 
         let idToken = null;
         let currentUser = null;
 
-        // ✅ [사용] 이미 HTML에 정의된 토스트 요소를 가져옵니다.
         const customToast = document.getElementById('custom-toast'); 
         const toastDuration = 2500; 
 
@@ -180,20 +180,21 @@
         // 1. 사용자 정보 불러오기
         async function loadUserInfo(token) {
             try {
-                const response = await fetch(`${fastapiUrl}/api/users/me`, {
+                const fields = ['birthCalendar', 'birthDate', 'birthTime', 'gender'];
+                const response = await fetch(`${API_URL}/api/users/me?fields=${fields.join(',')}`, {
                     headers: {
                         'Authorization': `Bearer ${token}` 
                     }
                 });
 
                 if (!response.ok) {
-                    throw new Error(`데이터 로드 실패: ${response.statusText}`);
+                    const errorData = await res.json();
+                    throw new Error(errorData.message || `데이터 로드에 실패했습니다.`);
                 }
 
                 const data = await response.json();
                 
                 // 폼 필드 채우기
-                // document.getElementById('user-email').value = data.email || ''; // HTML에 해당 ID가 없으므로 주석 처리
                 document.getElementById('birthdate-input').value = data.birthDate || '';
                 document.getElementById('birth_calendar').value = data.birthCalendar || 'solar';
                 
@@ -220,8 +221,7 @@
                 }
 
             } catch (error) {
-                console.error("사용자 정보 로드 중 오류 발생:", error);
-                showCustomToast("사용자 정보를 불러오는 데 실패했습니다."); // ✅ [수정] alert -> 토스트
+                showCustomToast("사용자 정보를 불러오는 데 실패했습니다.");
             }
         }
         
@@ -231,7 +231,8 @@
 
             const idToken = await currentUser.getIdToken();
             if (!idToken) {
-                showCustomToast("로그인이 필요합니다."); // ✅ [수정] alert -> 토스트
+                showCustomToast("로그인이 필요합니다.");
+                window.location.href = 'index.html';
                 return;
             }
 
@@ -239,40 +240,41 @@
             saveBtn.disabled = true;
             saveBtn.textContent = '저장 중...';
 
-            // 폼 데이터 수집
-            const form = event.target;
-            const formData = new FormData();
+            // JSON 전송을 위한 객체 생성
+            const patchBody = {};
             
             // 생년월일
             const birthDate = document.getElementById('birthdate-input').value;
             const birthCalendar = document.getElementById('birth_calendar').value;
-            if (birthDate) formData.append('birth_date', birthDate);
-            if (birthCalendar) formData.append('birth_calendar', birthCalendar);
+            if (birthDate) patchBody.birthDate = birthDate;
+            if (birthCalendar) patchBody.birthCalendar = birthCalendar;
             
             // 성별
-            const gender = form.querySelector('input[name="gender"]:checked');
-            if (gender) formData.append('gender', gender.value);
+            const gender = event.target.querySelector('input[name="gender"]:checked');
+            if (gender) patchBody.gender = gender.value;
 
             // 태어난 시간
             const unknownTime = document.getElementById('unknown-time').checked;
-            formData.append('unknown_time', unknownTime ? 'true' : 'false');
+            patchBody.time_unknown = unknownTime;
 
             if (!unknownTime) {
-                const hour = document.getElementById('birth-hour').value.padStart(2, '0');
-                const minute = document.getElementById('birth-minute').value.padStart(2, '0');
+                const hour = document.getElementById('birth-hour').value;
+                const minute = document.getElementById('birth-minute').value;
                 if (hour && minute) {
-                    formData.append('birth_time', `${hour}:${minute}`); 
+                    patchBody.birth_hour = hour.padStart(2, '0');
+                    patchBody.birth_minute = minute.padStart(2, '0');
                 }
             }
             
 
             try {
-                const response = await fetch(`${fastapiUrl}/api/users/me`, {
+                const response = await fetch(`${API_URL}/api/users/me`, {
                     method: 'PATCH',
                     headers: {
-                        'Authorization': `Bearer ${idToken}`
+                        'Authorization': `Bearer ${idToken}`,
+                        'Content-Type': 'application/json'
                     },
-                    body: formData
+                    body: JSON.stringify(patchBody)
                 });
 
                 const result = await response.json();
@@ -281,12 +283,12 @@
                     throw new Error(result.detail || "정보 수정에 실패했습니다. 서버 로그를 확인하세요.");
                 }
 
-                showCustomToast("회원 정보가 성공적으로 수정되었습니다."); // ✅ [수정] alert -> 토스트
+                showCustomToast("회원 정보가 성공적으로 수정되었습니다.");
                 await loadUserInfo(idToken); 
 
             } catch (error) {
                 console.error("정보 수정 중 오류 발생:", error);
-                showCustomToast(`정보 수정에 실패했습니다: ${error.message}`); // ✅ [수정] alert -> 토스트
+                showCustomToast(`정보 수정에 실패했습니다: ${error.message}`);
             } finally {
                 saveBtn.disabled = false;
                 saveBtn.textContent = '저장';
@@ -323,7 +325,7 @@
             if (!unknownTimeCheckbox.checked) {
                 timeContainer.classList.remove('border-gray-300');
                 timeContainer.classList.add('border-[#FF7A5A]');
-                timeContainer.style.boxShadow = '0 0 0 1px #FF7A5A'; // 커스텀 링 효과
+                timeContainer.style.boxShadow = '0 0 0 1px #FF7A5A';
             }
         }
 
@@ -355,8 +357,8 @@
                 idToken = await user.getIdToken();
                 await loadUserInfo(idToken);
             } else {
-                showCustomToast('로그인이 필요합니다.'); // ✅ [수정] alert -> 토스트
-                window.location.href = 'index.html'; // 로그인 페이지로 이동
+                showCustomToast('로그인이 필요합니다.');
+                window.location.href = 'index.html';
                 return;
             }
         });

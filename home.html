@@ -345,7 +345,7 @@
         const auth = getAuth(app);
 
         const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-        const fastapiUrl = isLocal ? "http://127.0.0.1:8000" : "https://bapick.duckdns.org";
+        const API_URL = isLocal ? "http://127.0.0.1:8000" : "https://bapick.duckdns.org";
 
         const userNameEl = document.getElementById('user-nickname');
         const userbirthdateEl = document.getElementById('user-birthdate');
@@ -456,7 +456,7 @@
 
         // 오행 분석 및 추천 메시지 가져오는 함수
         async function fetchRecommendation(idToken) {
-            const res = await fetch(`${fastapiUrl}/api/saju/analyze`, {
+            const res = await fetch(`${API_URL}/api/saju/analyze`, {
                 headers: { 'Authorization': `Bearer ${idToken}` }
             });
 
@@ -557,7 +557,7 @@
                     lon = pos.coords.longitude;
                 }
 
-                const response = await fetch(`${fastapiUrl}/api/restaurants/nearby?lat=${lat}&lon=${lon}&limit=15`, {
+                const response = await fetch(`${API_URL}/api/restaurants/nearby?lat=${lat}&lon=${lon}&limit=15`, {
                     method: 'GET',
                     headers: { 'Authorization': `Bearer ${idToken}` },
                 });
@@ -612,20 +612,16 @@
             try {
                 const sajuFields = ['ohengWood', 'ohengFire', 'ohengEarth', 'ohengMetal', 'ohengWater'];
                 const fields = ['nickname', 'birthDate', 'profileImage', ...sajuFields];
-                const res = await fetch(`${fastapiUrl}/api/users/me?fields=${fields.join(',')}`, {
+                const res = await fetch(`${API_URL}/api/users/me?fields=${fields.join(',')}`, {
                     headers: { 'Authorization': `Bearer ${idToken}` }
                 });
 
                 if (!res.ok) throw new Error(`API error: ${res.status}`);
                 userData = await res.json();
 
-                const nickname = userData.nickname ? `${userData.nickname}님` : '사용자';
-                const birthDate = userData.birthDate || '생년월일 정보 없음';
-                const profileImage = userData.profileImage;
-
-                userNameEl.textContent = nickname;
-                userbirthdateEl.textContent = birthDate;
-                userProfileImageEl.src = profileImage;
+                userNameEl.textContent = userData.nickname ? `${userData.nickname}님` : '사용자';
+                userbirthdateEl.textContent = userData.birthDate || '생년월일 정보 없음';
+                userProfileImageEl.src = userData.profileImage || '/assets/images/default-profile.jpg';
 
                 const nearbyRestaurantsHeading = document.getElementById('nearby-restaurants-heading');
                 if (userData.nickname) {
