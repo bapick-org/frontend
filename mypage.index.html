@@ -79,9 +79,11 @@
                         <li class="py-1"><a href="friend_list.html" class="flex justify-between items-center py-3.5 text-gray-700 hover:bg-gray-50 rounded-lg -mx-2 px-2"><span class="font-medium">친구 목록</span><svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg></a></li>
                         <li class="py-1"><a href="announcement.index.html" class="flex justify-between items-center py-3.5 text-gray-700 hover:bg-gray-50 rounded-lg -mx-2 px-2"><span class="font-medium">공지사항</span><svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg></a></li>
                         <li class="py-1">
-                            <a href="#" id="logout-btn" class="flex justify-between items-center py-3.5 text-red-500 hover:bg-red-50 rounded-lg -mx-2 px-2">
+                            <a href="#" id="open-logout-modal" class="flex justify-between items-center py-3.5 text-red-500 hover:bg-red-50 rounded-lg -mx-2 px-2">
                                 <span class="font-medium">로그아웃</span>
-                                <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+                                <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                </svg>
                             </a>
                         </li>
                     </ul>
@@ -99,8 +101,12 @@
             </div>
             <h2 class="text-2xl font-bold text-gray-800 mb-6">로그아웃 하시겠어요?</h2>
             <div class="w-full flex flex-col space-y-3">
-                <button id="confirm-logout-btn" class="w-full py-3 bg-gray-700 text-white font-bold rounded-lg hover:bg-gray-800 transition-colors">로그아웃</button>
-                <button id="cancel-logout-btn" class="w-full py-3 text-gray-600 font-medium rounded-lg hover:bg-gray-100 transition-colors">취소</button>
+                <button id="confirm-logout-btn" class="w-full py-3 bg-gray-700 text-white font-bold rounded-lg hover:bg-gray-800 transition-colors">
+                    로그아웃
+                </button>
+                <button id="cancel-logout-btn" class="w-full py-3 text-gray-600 font-medium rounded-lg hover:bg-gray-100 transition-colors">
+                    취소
+                </button>
             </div>
         </div>
     </div>
@@ -170,7 +176,7 @@
 
         // DOM 요소 로드
         const overlay = document.getElementById('overlay');
-        const logoutBtn = document.getElementById('logout-btn');
+        const openLogoutModal = document.getElementById('open-logout-modal');
         const logoutModal = document.getElementById('logout-modal');
         const cancelLogoutBtn = document.getElementById('cancel-logout-btn');
         const confirmLogoutBtn = document.getElementById('confirm-logout-btn');
@@ -203,16 +209,12 @@
             logoutModal.classList.add('hidden');
         }
 
-        // (1) 유저 정보를 로드하는 비동기 함수
+        // 사용자 프로필 로드
         async function loadUserProfile(user) {
-            if (!user) {
-                userDisplayName.textContent = "로그인이 필요합니다";
-                return;
-            }
-
             try {
                 const idToken = await user.getIdToken();
 
+                // 1. 유저 정보 조회 요청
                 const fields = ['nickname', 'profileImage'];
                 const res = await fetch(`${API_URL}/api/users/me?fields=${fields.join(',')}`, {
                     headers: {
@@ -220,15 +222,19 @@
                     }
                 });
 
-                if (!res.ok) throw new Error(`API error: ${res.status}`);
+                if (!res.ok) {
+                    const errorData = await res.json();
+                    throw new Error(errorData.message || errorData.detail || `프로필 로드에 실패했습니다.`);
+                }
+
                 const data = await res.json();
 
-                // UI 업데이트
-                userDisplayName.textContent = data.nickname ? `${data.nickname}님` : '사용자';;
+                // 2. UI 업데이트
+                userDisplayName.textContent = data.nickname ? `${data.nickname}님` : '사용자';
                 userDisplayProfileImage.src = data.profileImage || '/assets/images/default-profile.jpg'
             } catch (err) {
-                console.error('마이페이지 유저 정보 로드 실패:', err);
-                userDisplayName.textContent = '정보를 불러오지 못했습니다';
+                if (isLocal) console.error("[UserProfile Load Error]:", err);
+                showCustomToast("프로필 정보을 불러오는 데 실패했습니다.");
             }
         }
 
@@ -250,26 +256,24 @@
         
         overlay.addEventListener('click', closeAllPopups);
         
-        // 로그아웃 확인 버튼 클릭 시 (alert -> 토스트)
+        // 로그아웃 모달 열기
+        openLogoutModal.addEventListener('click', (e) => { 
+            e.preventDefault(); 
+            closeAllPopups(); 
+            logoutModal.classList.remove('hidden'); 
+            overlay.classList.remove('hidden'); 
+        });
+
+        // 로그아웃 버튼 클릭
         confirmLogoutBtn.addEventListener('click', () => {
             signOut(auth).then(() => {
-                // 로그아웃 성공 후 로그인 페이지로 이동
                 window.location.href = 'index.html';
             }).catch((error) => {
-                console.error('로그아웃 에러:', error);
                 showCustomToast('로그아웃에 실패했습니다.');
             });
         });
         
-        // 로그아웃 버튼 클릭 시 모달 열기
-        logoutBtn.addEventListener('click', (e) => { 
-            e.preventDefault(); 
-            closeAllPopups(); // 다른 팝업 닫고
-            logoutModal.classList.remove('hidden'); 
-            overlay.classList.remove('hidden'); 
-        });
-        
-        // 로그아웃 모달 취소 버튼
+        // 로그아웃 취소 버튼 클릭
         cancelLogoutBtn.addEventListener('click', () => { 
             logoutModal.classList.add('hidden'); 
             overlay.classList.add('hidden'); 
@@ -277,11 +281,14 @@
 
         // Firebase 인증 상태 확인
         onAuthStateChanged(auth, async (user) => {
-            if (!user) {
-                // 로그인되지 않은 경우, 바로 loadUserProfile(user)를 호출하여 "로그인이 필요합니다"를 표시
-                // 리다이렉션은 수동으로 하지 않습니다.
+            if (user) {
+                loadUserProfile(user); 
+            } else {
+                showCustomToast("로그인이 필요한 페이지입니다. 로그인 페이지로 이동합니다.");
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1000);
             }
-            loadUserProfile(user); 
         });
     </script>
 </body>

@@ -356,6 +356,7 @@
         const recommendationAdviceEl = document.getElementById('recommendation-advice');
 
         const locationTextEl = document.getElementById('location-text');
+        const nearbyRestaurantsHeading = document.getElementById('nearby-restaurants-heading');
 
         // 오행 통계 요소 맵
         const statElements = {
@@ -406,12 +407,12 @@
                                 locationTextEl.value = '주소 정보 없음';
                             }
                         } catch (error) {
-                            console.error("Reverse geocoding error:", error);
+                            if (isLocal) console.error("Reverse geocoding error:", error);
                             locationTextEl.value = '주소를 변환할 수 없습니다.';
                         }
                     },
                     (error) => {
-                        console.error(`Geolocation error: ${error.code} - ${error.message}`);
+                        if (isLocal) console.error(`Geolocation error: ${error.code} - ${error.message}`);
                         switch (error.code) {
                             case error.PERMISSION_DENIED:
                                 locationTextEl.value = "위치 권한이 거부되었습니다.";
@@ -576,7 +577,7 @@
                 try {
                     localStorage.setItem('recommendedRestaurants', JSON.stringify(restaurants));
                 } catch (e) {
-                    console.error("로컬 스토리지 저장 실패:", e);
+                    if (isLocal) console.error("로컬 스토리지 저장 실패:", e);
                 }
 
                 if (restaurants.length === 0) {
@@ -591,7 +592,7 @@
                 });
 
             } catch (err) {
-                console.error("Restaurant fetch failed:", err);
+                if (isLocal) console.error("Restaurant fetch failed:", err);
                 carouselEl.innerHTML = `<p class="text-gray-500 p-3">${err.message || '식당 정보를 불러오는 중 오류가 발생했습니다.'}</p>`;
             }
         };
@@ -608,25 +609,26 @@
             let userData = {};
             let sajuStats = {};
 
-            // 사용자 정보 (프로필 사진, 닉네임, 생년월일) 및 기본 오행 비율 로드
+            // 사용자 정보 (프로필 사진, 닉네임, 생년월일, 오행 비율) 로드
             try {
+                // 1. 사용자 정보 조회 요청
                 const sajuFields = ['ohengWood', 'ohengFire', 'ohengEarth', 'ohengMetal', 'ohengWater'];
                 const fields = ['nickname', 'birthDate', 'profileImage', ...sajuFields];
                 const res = await fetch(`${API_URL}/api/users/me?fields=${fields.join(',')}`, {
                     headers: { 'Authorization': `Bearer ${idToken}` }
                 });
 
-                if (!res.ok) throw new Error(`API error: ${res.status}`);
+                if (!res.ok) {
+                    const errorData = await res.json();
+                    throw new Error(errorData.message || errorData.detail || `사용자 정보 조회에 실패했습니다.`);
+                }
+
                 userData = await res.json();
 
                 userNameEl.textContent = userData.nickname ? `${userData.nickname}님` : '사용자';
                 userbirthdateEl.textContent = userData.birthDate || '생년월일 정보 없음';
                 userProfileImageEl.src = userData.profileImage || '/assets/images/default-profile.jpg';
-
-                const nearbyRestaurantsHeading = document.getElementById('nearby-restaurants-heading');
-                if (userData.nickname) {
-                    nearbyRestaurantsHeading.textContent = `${userData.nickname}님 근처 맛집`;
-                }
+                nearbyRestaurantsHeading.textContent = userData.nickname ? `${userData.nickname}님 근처 맛집` : `사용자님 근처 맛집`;
 
                 sajuStats = {
                     wood: userData.ohengWood || 0.0,
@@ -636,17 +638,17 @@
                     water: userData.ohengWater || 0.0,
                 };
 
-                // 초기 비율 업데이트
+                // 초기 오행 비율 업데이트
                 updateSajuStats(sajuStats);
 
                 // 위치 설정
                 loadSavedLocation();
-
             } catch (err) {
-                console.error("User profile fetch failed:", err);
-                const errorMsg = '정보를 불러오지 못했습니다';
+                if (isLocal) console.error("[UserProfile Load Error]:", err);
+                
+                //showCustomToast(`사용자 정보를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.`);
                 // 오류 메시지 동기화
-                userNameEl.textContent = errorMsg;
+                userNameEl.textContent = '정보를 불러오지 못했습니다';
                 userbirthdateEl.textContent = '';
             }
 
@@ -681,12 +683,13 @@
 
                 await fetchNearbyRestaurants(idToken);
             } catch (err) {
-                console.error("Recommendation fetch failed:", err);
-                const errorMsg = err.message || '서버 오류가 발생했습니다.';
+                if (isLocal) console.error("[Recommendation fetch Error]:", err);
+                //showCustomToast(`오행 정보 및 추천 메시지를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.`);
+
                 // 오류 메시지 동기화
                 recommendationTypeEl.textContent = '정보 없음';
                 recommendationHeadlineEl.textContent = '추천 분석 정보를 불러올 수 없습니다.';
-                recommendationAdviceEl.textContent = errorMsg;
+                recommendationAdviceEl.textContent = '서버 오류가 발생했습니다.';
             }
         });
 
