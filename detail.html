@@ -77,42 +77,40 @@
         
         /* 1024px 이상 = PC 화면 */
         @media (min-width: 1024px) {
-           .review-buttons {
-           flex-direction: column;
-           }
+            .review-buttons {
+                flex-direction: column;
+            }
 
-           .review-buttons a,
-           .review-buttons button {
-           width: 100%;
-           }
+            .review-buttons a,
+            .review-buttons button {
+                width: 100%;
+            }
         }
 
         @media (min-width: 1024px) {
-           .detail-layout {
-           display: grid;
-           grid-template-columns: 1fr 400px; /* 왼쪽 flexible, 오른쪽 고정 */
-           gap: 24px;
-           height: calc(100vh - 150px); /* 화면 높이에 맞게 */
-           }
+            .detail-layout {
+                display: grid;
+                grid-template-columns: 1fr 400px; /* 왼쪽 flexible, 오른쪽 고정 */
+                gap: 24px;
+                height: calc(100vh - 150px); /* 화면 높이에 맞게 */
+            }
 
-           .detail-left {
-           overflow-y: auto; /* 왼쪽만 스크롤 */
-           padding-right: 10px;
-           }
+            .detail-left {
+                overflow-y: auto; /* 왼쪽만 스크롤 */
+                padding-right: 10px;
+            }
 
-           .detail-right {
-           position: sticky;
-           top: 120px; /* 헤더 높이에 맞춰서 조정하면 됨 */
-           height: fit-content;
-           }
+            .detail-right {
+                position: sticky;
+                top: 120px; /* 헤더 높이 */
+                height: fit-content;
+            }
 
-           #map-area {
-           width: 100%;
-           height: 500px; /* 원하는 크기 */
-           }
+            #map-area {
+                width: 100%;
+                height: 500px;
+            }
         }
-
-
     </style>
 </head>
 
@@ -149,15 +147,13 @@
 
                     <!-- 식당 기본 정보 -->
                     <div class="p-0">
-                        <!-- 식당 카테고리 (예: 한식)-->
                         <p id="restaurant-category" class="inline-block bg-orange-100 text-[#FF7A5A] text-sm font-semibold px-3 py-1 rounded-full mb-2"></p>
-                        <!-- 식당 이름 -->
+
                         <h2 id="restaurant-name" class="text-3xl font-bold text-gray-900 leading-tight"></h2>
-                        <!-- 리뷰 정보 (방문자 리뷰수, 블로그 리뷰수, 평점)-->
+
                         <div id="review-info" class="flex items-center gap-4 text-lg text-gray-600 mt-3"></div>
-                        <!-- 버튼 영역 -->
+
                         <div class="mt-6 flex gap-2 review-buttons">
-                            <!-- 스크랩 버튼 -->
                             <button id="scrap-btn" class="flex-1 flex items-center justify-center gap-2 py-3 border-2 border-gray-200 bg-white text-gray-700 rounded-lg font-semibold transition-all duration-300 ease-in-out hover:shadow-md transform hover:-translate-y-0.5">
                                 <svg class="w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.5 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z" />
@@ -165,7 +161,6 @@
                                 <span>스크랩</span>
                             </button>
 
-                            <!-- 예약 버튼 -->
                             <a id="calender-btn" href="calender.html" class="flex-1 flex items-center justify-center gap-2 py-3 border-2 border-gray-200 bg-white text-gray-700 rounded-lg font-semibold transition-all duration-300 ease-in-out hover:shadow-md transform hover:-translate-y-0.5">
                                 <svg class="w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
                                     <path d="M19 4h-1V2h-2v2H8V2H6v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"/>
@@ -363,6 +358,12 @@
         const customToast = document.getElementById('custom-toast');
         const toastDuration = 2500; // 2.5초 후 사라짐
 
+        // 컬렉션 생성 시트 관련 요소
+        const createCollectionSheet = document.getElementById('create-collection-sheet');
+        const createCollectionNameInput = document.getElementById('collection-name');
+        const createCollectionBtn = document.getElementById('create-collection-btn'); // 만들기 버튼
+
+
         function showCustomToast(message) {
             customToast.textContent = message;
             customToast.classList.remove('opacity-0', 'pointer-events-none');
@@ -375,12 +376,8 @@
             }, toastDuration);
         }
 
-        // 컬렉션 생성 시트 관련 요소
-        const createCollectionSheet = document.getElementById('create-collection-sheet');
-        const createCollectionNameInput = document.getElementById('collection-name');
-        const createCollectionBtn = document.getElementById('create-collection-btn'); // 만들기 버튼
-
-        // 헤더 스크롤 이벤트 리스너
+        /* 이벤트 리스너 등록 */
+        // 스크롤 시 헤더 고정 이벤트 리스너
         document.querySelector('main').addEventListener('scroll', (e) => {
             const header = document.getElementById('page-header');
             if (e.target.scrollTop > 50) {
@@ -395,6 +392,7 @@
             history.back();
         });
 
+        /* UI 렌더링 */
         // 스크랩 상태에 따라 스크랩 버튼 내 텍스트 업데이트
         function updateScrapButton(isScrapped) {
             if (isScrapped) {
@@ -406,12 +404,13 @@
             }
         }
 
+        /* API 호출 */
         // 해당 식당의 스크랩 상태 확인
         async function checkScrapStatus() {
             if (!currentUser || !currentRestaurant) return;
             try {
                 const idToken = await currentUser.getIdToken(true);
-                const response = await fetch(`${fastapiUrl}/api/scraps/${currentRestaurant.id}`, {
+                const response = await fetch(`${fastapiUrl}/api/scraps/restaurants/${currentRestaurant.id}`, {
                     method: 'GET',
                     headers: { 'Authorization': `Bearer ${idToken}` },
                 });
@@ -441,7 +440,7 @@
                 // 1. 이미 스크랩된 경우: 스크랩 버튼을 누르면 스크랩 취소
                 try {
                     const idToken = await currentUser.getIdToken(true);
-                    const response = await fetch(`${fastapiUrl}/api/scraps/${restaurantId}`, {
+                    const response = await fetch(`${fastapiUrl}/api/scraps/restaurants/${restaurantId}`, {
                         method: 'DELETE',
                         headers: { 'Authorization': `Bearer ${idToken}` }
                     });
@@ -486,10 +485,10 @@
                         // 지도 탭을 열 때 지도를 다시 렌더링하거나 레이아웃을 조정
                         if (targetTab === 'info' && currentRestaurant && currentRestaurant.latitude && currentRestaurant.longitude) {
                              // 카카오맵 re-layout 호출 (지도 표시 시 필수)
-                             const mapContainer = document.getElementById('map');
-                             if (mapContainer && window.kakao && window.kakao.maps) {
-                                 renderMap(parseFloat(currentRestaurant.latitude), parseFloat(currentRestaurant.longitude), currentRestaurant.name);
-                             }
+                            const mapContainer = document.getElementById('map');
+                            if (mapContainer && window.kakao && window.kakao.maps) {
+                                renderMap(parseFloat(currentRestaurant.latitude), parseFloat(currentRestaurant.longitude), currentRestaurant.name);
+                            }
                         }
                     } else {
                         panel.classList.add('hidden');
@@ -619,8 +618,8 @@
                 }
 
                 return `
-                ${ratingInfo}${visitorReviewsInfo}${blogReviewsInfo}
-            `;
+                    ${ratingInfo}${visitorReviewsInfo}${blogReviewsInfo}
+                `;
             }).join('');
         }
 
@@ -796,8 +795,7 @@
             const li = document.createElement('li');
             li.className = 'flex items-center justify-between p-4 border-b border-gray-100 last:border-b-0 hover:bg-gray-50 cursor-pointer';
 
-            const isAllScraps = collection.id === 'null';
-            const nameClass = isAllScraps
+            const nameClass = collection.name == '모든 스크랩'
                 ? 'font-bold text-orange-500'
                 : 'font-medium text-gray-800';
 
@@ -821,7 +819,7 @@
                     const idToken = await currentUser.getIdToken(true);
                     const restaurantId = currentRestaurant.id;
 
-                    const response = await fetch(`${fastapiUrl}/api/scraps`, {
+                    const response = await fetch(`${fastapiUrl}/api/scraps/restaurants/${currentRestaurant.id}`, {
                         method: 'POST',
                         headers: {
                             'Authorization': `Bearer ${idToken}`,
@@ -829,7 +827,7 @@
                         },
                         body: JSON.stringify({
                             restaurant_id: restaurantId,
-                            collection_id: collectionId && collectionId !== 'null' ? parseInt(collectionId) : null
+                            collection_id: (collectionId && parseInt(collectionId) !== 0) ? parseInt(collectionId) : null
                         })
                     });
 
@@ -864,7 +862,7 @@
             try {
                 const token = await currentUser.getIdToken();
                 
-                const response = await fetch(`${fastapiUrl}/api/scraps/collections`, {
+                const response = await fetch(`${fastapiUrl}/api/collections`, {
                     method: 'GET',
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
@@ -877,13 +875,6 @@
                 const userCollections = await response.json();
                 
                 listContainer.innerHTML = ''; 
-
-                listContainer.appendChild(
-                    createCollectionListItem({ 
-                        id: 'null', 
-                        name: '모든 스크랩', 
-                    })
-                );
                 
                 userCollections.forEach(collection => {
                     listContainer.appendChild(createCollectionListItem(collection));
@@ -951,7 +942,7 @@
             try {
                 const idToken = await currentUser.getIdToken(true);
                 
-                const response = await fetch(`${fastapiUrl}/api/scraps/collections`, {
+                const response = await fetch(`${fastapiUrl}/api/collections`, {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${idToken}`,
