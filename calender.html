@@ -528,10 +528,19 @@
         // 식당 검색 API 호출
         async function searchRestaurants(keyword) {
             searchResultsContainer.innerHTML = '';
-            
-            if (!keyword.trim()) {
+
+            const trimmedKeyword = keyword.trim();
+
+            if (!trimmedKeyword) {
                 searchResultsContainer.classList.add('hidden');
                 selectedRestaurantId = null;
+                return;
+            }
+            
+            // 50자 이내 제한
+            if (trimmedKeyword.length > 50) {
+                searchResultsContainer.innerHTML = `<p class="p-2 text-amber-600">검색어는 50자 이내로 입력해주세요.</p>`;
+                searchResultsContainer.classList.remove('hidden');
                 return;
             }
             
@@ -540,7 +549,7 @@
             try {
                 const token = await currentUser.getIdToken(); 
                 
-                const response = await fetch(`${API_URL}/api/restaurants/search?keyword=${encodeURIComponent(keyword)}`, {
+                const response = await fetch(`${API_URL}/api/restaurants?keyword=${encodeURIComponent(keyword)}`, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${token}`, 
@@ -548,21 +557,19 @@
                     }
                 });
 
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    console.error(`식당 검색 API 오류 ${response.status}:`, errorText);
-                    searchResultsContainer.innerHTML = `<p class="p-2 text-red-500">검색 서버 오류 (${response.status})가 발생했습니다.</p>`;
-                    return;
-                }
-
                 const data = await response.json();
+
+                if (!response.ok) {
+                    if (isLocal) console.error("검색 실패:", data.message || data.detail);
+                    throw new Error(data.message || data.detail);
+                }
 
                 if (data && Array.isArray(data.restaurants)) {
                     renderSearchResults(data.restaurants); 
                 } else {
-                    if (isLocal) console.error("API 응답 구조 오류: 예상된 'restaurants' 배열이 없습니다.", data);
-                    searchResultsContainer.innerHTML = `<p class="p-2 text-red-500">검색 결과를 가져오는 데 실패했습니다.</p>`;
+                    throw new Error("서버 응답 형식이 올바르지 않습니다.");
                 }
+
             } catch (error) {
                 if (isLocal) console.error("[식당 검색 실패]", error);
                 searchResultsContainer.innerHTML = `<p class="p-2 text-red-500">검색 결과를 가져오는 데 실패했습니다.</p>`;

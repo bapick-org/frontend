@@ -527,15 +527,13 @@
                     headers: { 'Authorization': `Bearer ${idToken}` },
                 });
 
+                const data = await response.json();
+
                 if (!response.ok) {
-                    if (response.status === 404) {
-                        throw new Error('주변 식당 정보를 가져오지 못했습니다.');
-                    }
-                    throw new Error(`식당 목록 API 오류: ${response.status} ${response.statusText}`);
+                    throw new Error(data.message || data.detail || '주변 식당 정보를 가져오지 못했습니다.');
                 }
 
-                const data = await response.json();
-                const restaurants = data.restaurants || [];
+                const restaurants = Array.isArray(data) ? data : [];
 
                 // 추천 식당 목록을 로컬 스토리지에 저장
                 try {
@@ -557,7 +555,7 @@
 
             } catch (err) {
                 if (isLocal) console.error("Restaurant fetch failed:", err);
-                carouselEl.innerHTML = `<p class="text-gray-500 p-3">${err.message || '식당 정보를 불러오는 중 오류가 발생했습니다.'}</p>`;
+                carouselEl.innerHTML = `<p class="text-gray-500 p-3">식당 정보를 불러오는 중 오류가 발생했습니다.</p>`;
             }
         };
 
