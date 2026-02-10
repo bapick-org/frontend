@@ -132,7 +132,7 @@
                     <div class="lg:col-span-2">
                         <div class="flex flex-col items-center">
                             <div class="flex items-center justify-between w-full mb-4 lg:mb-4">
-                                <button id="monthYearBtn"class="text-lg font-semibold cursor-pointer p-2 rounded-md hover:bg-gray-100"></button>
+                                <button id="monthYearBtn" class="text-lg font-semibold cursor-pointer p-2 rounded-md hover:bg-gray-100"></button>
                                 <div class="flex space-x-2">
                                     <button id="prevMonth" class="text-gray-500 p-2 rounded-full hover:bg-gray-200">
                                         <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -414,13 +414,19 @@
             const hoursSelector = document.getElementById('hours-selector');
             const minutesSelector = document.getElementById('minutes-selector');
 
+            // 1. 패딩 요소를 제외한 실제 숫자 요소들만 필터링
+            const hourElements = Array.from(hoursSelector.children).filter(el => el.textContent.trim().length === 2);
+            const minuteElements = Array.from(minutesSelector.children).filter(el => el.textContent.trim().length === 2);
+
+            // 2. 현재 스크롤 위치에서 중앙에 가장 가까운 인덱스 계산
             const hourIndex = Math.round(hoursSelector.scrollTop / itemHeight);
             const minuteIndex = Math.round(minutesSelector.scrollTop / itemHeight);
-            
-            const selectedHour = (hourIndex <= 0 ? 0 : hourIndex - 1).toString().padStart(2, '0');
-            const selectedMinute = ((minuteIndex <= 0 ? 0 : minuteIndex - 1) * 5).toString().padStart(2, '0');
-            
-            return `${selectedHour}:${selectedMinute}`;
+
+            // 3. 값 추출
+            const hourVal = hourElements[hourIndex] ? hourElements[hourIndex].textContent : "00";
+            const minuteVal = minuteElements[minuteIndex] ? minuteElements[minuteIndex].textContent : "00";
+
+            return `${hourVal}:${minuteVal}`;
         };
 
         // 인원/월 등 버튼 클릭 시 상태 업데이트
@@ -444,7 +450,7 @@
 
             try {
                 const idToken = await currentUser.getIdToken();
-                const response = await fetch(`${API_URL}/api/reservations/?target_date=${dateString}`, {
+                const response = await fetch(`${API_URL}/api/reservations?target_date=${dateString}`, {
                     method: 'GET',
                     headers: { 
                         'Authorization': `Bearer ${idToken}`, 
@@ -488,12 +494,13 @@
                     const errorData = await response.json();
                     throw new Error(errorData.message || errorData.detail || `${warningWord}에 실패했습니다.`);
                 }
-                
-                const result = await response.json();
-                return result;
+
+                const data = await response.json();
+                return data;
             } catch (error) {
                 if (isLocal) console.error(`[${warningWord}]:`, error);
                 showToast(`${warningWord}에 실패했습니다.`);
+                //error.messag
                 return null;
             }
         }
@@ -557,13 +564,15 @@
                     }
                 });
 
-                const data = await response.json();
-
                 if (!response.ok) {
-                    if (isLocal) console.error("검색 실패:", data.message || data.detail);
-                    throw new Error(data.message || data.detail);
+                    const errorData = await response.json();
+                    const errorMsg = rrorData.message || errorData.detai || '검색 결과를 불러오던 중 오류가 발생했습니다.'
+                    if (isLocal) console.error(`검색 실패: ${errorMsg}`);
+                    throw new Error(errorMsg);
                 }
 
+                const data = await response.json();
+                
                 if (data && Array.isArray(data.restaurants)) {
                     renderSearchResults(data.restaurants); 
                 } else {
@@ -660,7 +669,10 @@
                         data-id="${restaurant.id}"
                         data-name="${restaurant.name.replace(/"/g, '&quot;')}"
                         data-category="${restaurant.category}">
-                        <p class="font-medium">${restaurant.name} <span class="text-xs text-gray-500">(${restaurant.category})</span></p>
+                        <p class="font-medium">
+                            ${restaurant.name} 
+                            <span class="text-xs text-gray-500">(${restaurant.category})</span>
+                        </p>
                         <p class="text-xs text-gray-600">${restaurant.address || '주소 정보 없음'}</p>
                         <p class="text-xs text-yellow-500">평점: ${restaurant.rating ? restaurant.rating.toFixed(1) : '평점 없음'}</p>
                     </div>
@@ -966,6 +978,7 @@
                 showToast('날짜를 먼저 선택해주세요.');
                 return;
             }
+            
             editingReservationId = null;
             confirmReservationBtn.textContent = '저장';
             selectedRestaurantId = null;
@@ -1104,7 +1117,7 @@
 
             if (!restaurantId || typeof restaurantId !== 'number' || restaurantId <= 0) {
                 console.error("유효한 식당 ID가 선택되지 않았습니다.");
-                showToast(`${restaurantName}' 맛집을 검색 결과 목록에서 클릭해주세요.`); 
+                showToast(`'${restaurantName}' 식당을 검색 결과 목록에서 클릭해주세요.`); 
                 return;
             }
 
