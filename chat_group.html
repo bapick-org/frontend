@@ -55,7 +55,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
                 </svg>
             </button>
-            <h1 class="text-lg font-bold">대화상대 선택</h1>
+            <h1 class="text-xl font-bold text-center text-gray-800 col-span-1 whitespace-nowrap">대화상대 선택</h1>
             <button id="confirm-btn" class="text-gray-400 font-semibold flex items-center gap-2" disabled>
                 <span>확인</span>
                 <div id="loading-spinner" class="spinner hidden"></div>
@@ -73,8 +73,8 @@
             <p class="text-xs text-gray-500 mt-1">* 입력하지 않은 경우, 자동으로 멤버 이름으로 설정됩니다</p>
         </div>
 
-        <div class="p-4 border-b border-gray-200">
-            <div class="relative">
+        <div class="p-4 pb-2 border-b border-gray-200">
+            <div class="relative mb-3">
                 <input type="text" id="friends-search-input" placeholder="닉네임으로 검색" 
                     class="w-full py-2 pl-10 pr-4 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400">
                 <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
@@ -84,7 +84,7 @@
                     </svg>
                 </div>
             </div>
-            <button id="add-friend-btn" class="w-full mt-2 py-2 text-gray-800 cursor-pointer hover:bg-gray-50 border-none bg-transparent flex items-center text-left text-base font-medium">
+            <button id="add-friend-btn" class="w-full py-2 px-1 text-gray-800 rounded-lg cursor-pointer hover:bg-gray-100 border-none bg-transparent flex items-center text-left text-base font-medium">
                 <div class="w-9 h-9 rounded-full bg-orange-100 text-orange-500 flex justify-center items-center mr-3 flex-shrink-0">
                     <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5 stroke-2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
@@ -145,7 +145,7 @@
         const auth = getAuth(app);
 
         const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-        const fastapiUrl = isLocal ? "http://127.0.0.1:8000" : "https://bapick.duckdns.org";
+        const API_URL = isLocal ? "http://127.0.0.1:8000" : "https://bapick.duckdns.org";
 
 
         // UI 요소
@@ -168,7 +168,7 @@
         let currentUser = null;
         let allFriends = [];
         let selectedFriends = new Set();
-        const defaultProfileImg = "/assets/images/default-profile.jpg";
+        const DEFAULT_PROFILE_IMAGE = "/assets/images/default-profile.jpg";
 
         /* =================================================================
         * 유틸리티 함수
@@ -188,40 +188,6 @@
         /* =================================================================
         * 친구 관련 함수
         * ================================================================= */
-
-        // 사용자 검색 결과 HTML 생성 - 사용자 프로필, 친구 요청 버튼
-        function createUserSearchResult(user) {
-            let buttonHtml = '';
-            // 관계 상태(relation_status)에 따라 버튼 렌더링
-            if (user.relation_status === "friend") {
-                buttonHtml = `<span class="text-sm text-green-500 font-medium px-3 py-1 rounded-md bg-green-100">친구</span>`;
-            } else if (user.relation_status === "sent_request") {
-                buttonHtml = `<span class="text-sm text-gray-500 font-medium px-3 py-1 rounded-md bg-gray-100">요청 완료</span>`;
-            } else if (user.relation_status === "received_request") {
-                buttonHtml = `<span class="text-sm text-orange-500 font-medium px-3 py-1 rounded-md bg-orange-100">요청 받음</span>`; 
-            } else {
-                // 관계가 없는 경우 (친구 요청 버튼 표시)
-                buttonHtml = `<button data-uid="${user.firebase_uid}" data-nickname="${user.nickname}"
-                                    class="send-friend-request-btn text-sm text-white bg-orange-500 hover:bg-orange-600 px-3 py-1 rounded-md">
-                                친구 요청
-                            </button>`;
-            }
-
-            const profileItem = document.createElement('div');
-            profileItem.className = "flex items-center justify-between p-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors";
-            profileItem.innerHTML = `
-                <div class="flex items-center space-x-3">
-                    <img class="h-10 w-10 rounded-full object-cover"
-                        src="${user.profile_image || defaultProfileImg}" alt="Profile">
-                    <span class="font-medium text-gray-700">${user.nickname}</span>
-                </div>
-                <div class="flex-shrink-0">
-                    ${buttonHtml}  
-                </div>
-            `;
-            return profileItem;
-        }
-
         // 사용자 검색 API 호출 및 검색 결과 렌더링 (Debounce 적용 대상)
         async function searchUsers(query) {
             profileListContainer.innerHTML = ''; 
@@ -236,7 +202,7 @@
             try {
                 const token = await currentUser.getIdToken();
 
-                const res = await fetch(`${fastapiUrl}/api/friends/search?query=${encodeURIComponent(query)}`, {
+                const response = await fetch(`${API_URL}/api/users?keyword=${encodeURIComponent(query)}`, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -244,12 +210,13 @@
                     }
                 });
 
-                if (!res.ok) {
-                    throw new Error(`HTTP error! status: ${res.status}`);
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || errorData.detail || `검색 중 오류가 발생했습니다.`);
                 }
 
-                const data = await res.json();
-                const users = data.users || [];
+                const result = await response.json();
+                const users = result.data || [];
                 
                 if (users.length > 0) {
                     users.forEach(user => {
@@ -264,106 +231,62 @@
                 attachFriendRequestListeners(); // 새로 렌더링된 버튼에 이벤트 리스너 연결
 
             } catch (error) {
-                console.error("사용자 검색 실패:", error);
+                if (isLocal) console.error("[사용자 검색 실패]:", error);
                 profileListContainer.classList.remove('hidden');
                 profileListContainer.innerHTML = '<p class="text-sm text-red-500 p-2">검색 중 오류가 발생했습니다.</p>';
             }
         }
 
-        // 친구 요청 전송 API 호출 및 버튼 상태 업데이트 
-        async function sendFriendRequest(receiverUid, receiverNickname, buttonElement) {
-            if (!confirm(`${receiverNickname}님께 친구 요청을 보내시겠습니까?`)) {
-                return;
-            }
-
+        // 친구 목록 조회
+        async function getFriendList() {
             try {
-                const token = await currentUser.getIdToken();
-
-                // POST /friends/request (친구 요청 API) 호출
-                const res = await fetch(`${fastapiUrl}/api/friends/request`, { 
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        to_user: receiverUid 
-                    })
+                const response = await fetch(`${API_URL}/api/friends`, {
+                    method: 'GET',
+                    headers: { 'Authorization': `Bearer ${idToken}` },
                 });
 
-                if (!res.ok) {
-                    const errorData = await res.json();
-                    throw new Error(errorData.detail || `친구 요청 실패: ${res.status}`);
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || errorData.detail || `친구 목록을 불러오던 중 오류가 발생했습니다.`);
                 }
 
-                buttonElement.disabled = true;
-                buttonElement.textContent = '요청 완료'; 
-                buttonElement.classList.remove('bg-orange-500', 'hover:bg-orange-600', 'text-white');
-                buttonElement.classList.add('bg-gray-100', 'text-gray-500', 'font-medium');
+                const result = await response.json();
+                allFriends = result.data || []; 
+
+                renderFriendList(allFriends);
             } catch (error) {
-                console.error("친구 요청 실패:", error);
-                alert(`친구 요청 실패: ${error.message}`);
+                if (isLocal) console.error("[친구 목록 조회 실패]:", error);
+                friendsListContainer.innerHTML = `
+                    <div class="text-center text-red-500 mt-4">
+                        <p>친구 목록을 불러오던 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.</p>
+                        <button onclick="location.reload()" class="mt-2 text-orange-500 underline">다시 시도</button>
+                    </div>
+                `;
             }
         }
 
-        // 검색 결과에 동적으로 생긴 '친구 요청' 버튼에 이벤트 리스너 연결
-        function attachFriendRequestListeners() {
-            document.querySelectorAll('.send-friend-request-btn').forEach(button => {
-                if (!button.dataset.listenerAttached) {
-                    button.addEventListener('click', async (event) => {
-                        const btn = event.currentTarget;
-                        const receiverUid = btn.getAttribute('data-uid');
-                        const receiverNickname = btn.getAttribute('data-nickname');
-                        await sendFriendRequest(receiverUid, receiverNickname, btn);
-                    });
-                    button.dataset.listenerAttached = 'true';
-                }
-            });
-        }
-
-        // 받은 친구 요청 렌더링
-        function renderFriendRequest(req) {
-            const item = document.createElement('div');
-            item.className = "flex items-center justify-between p-2 rounded-lg bg-gray-50";
-            item.dataset.requesterUid = req.from_user_uid;
-
-            item.innerHTML = `
-                <div class="flex items-center space-x-3">
-                    <img class="h-10 w-10 rounded-full object-cover"
-                        src="${req.from_user_profile_image || defaultProfileImg}" alt="Profile">
-                    <span class="font-medium text-gray-700">${req.from_user_nickname}</span>
-                </div>
-                <div class="space-x-2 flex-shrink-0">
-                    <button data-action="accept" data-requester-uid="${req.from_user_uid}" 
-                            class="handle-request-btn text-sm text-white bg-blue-500 hover:bg-blue-600 px-3 py-1 rounded-md">수락</button>
-                    <button data-action="reject" data-requester-uid="${req.from_user_uid}"
-                            class="handle-request-btn text-sm text-white bg-red-500 hover:bg-red-600 px-3 py-1 rounded-md">거절</button>
-                </div>
-            `;
-            return item;
-        }
-
-        // 받은 친구 요청 조회 API 호출
+        // 친구 요청 조회 API 호출
         async function loadFriendRequests() {
             friendRequestList.innerHTML = '<p class="text-sm text-gray-500 py-2">친구 요청을 불러오는 중...</p>';
             if (!currentUser) return;
 
             try {
                 const token = await currentUser.getIdToken();
-                const res = await fetch(`${fastapiUrl}/api/friends/requests`, {
+                const response = await fetch(`${API_URL}/api/friend-requests`, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
                     }
                 });
-
-                if (!res.ok) {
-                    throw new Error(`HTTP error! status: ${res.status}`);
-                }
                 
-                const data = await res.json();
-                const requests = data.requests || [];
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || errorData.detail || `친구 요청을 불러오던 중 오류가 발생했습니다.`);
+                }
+
+                const result = await response.json();
+                const requests = result.data || [];
 
                 friendRequestList.innerHTML = '';
                 
@@ -379,31 +302,66 @@
                 attachRequestHandleListeners(); // 요청 처리 버튼에 이벤트 연결
 
             } catch (error) {
-                console.error("친구 요청 목록 로드 실패:", error);
-                friendRequestList.innerHTML = '<p class="text-sm text-red-500 p-2">친구 요청 로드 중 오류 발생</p>';
+                if (isLocal) console.error("[친구 요청 목록 조회 실패]:", error);
+                friendRequestList.innerHTML = '<p class="text-sm text-red-500 p-2">친구 요청을 불러오던 중 오류가 발생했습니다.</p>';
             }
         }
 
-        // 친구 요청 수락/거절 API 호출
-        async function handleFriendRequest(requesterUid, action, buttonElement) {
-            if (!currentUser) return;
+
+        // 친구 요청 전송 API 호출 및 버튼 상태 업데이트 
+        async function sendFriendRequest(receiverUid, receiverNickname, buttonElement) {
+            if (!confirm(`${receiverNickname}님께 친구 요청을 보내시겠습니까?`)) {
+                return;
+            }
+
             try {
                 const token = await currentUser.getIdToken();
-                const res = await fetch(`${fastapiUrl}/api/friends/handle`, {
+
+                const response = await fetch(`${API_URL}/api/friend-requests`, { 
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        requester_uid: requesterUid,
+                        receiverUid: receiverUid 
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || errorData.detail || `친구 요청 처리 중 오류가 발생했습니다.`);
+                }
+
+                buttonElement.disabled = true;
+                buttonElement.textContent = '요청 완료'; 
+                buttonElement.classList.remove('bg-orange-500', 'hover:bg-orange-600', 'text-white');
+                buttonElement.classList.add('bg-gray-100', 'text-gray-500', 'font-medium');
+            } catch (error) {
+                if (isLocal) console.error("[친구 요청 실패]:", error);
+                alert(`친구 요청 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.`);
+            }
+        }
+        
+        // 친구 요청 수락/거절 API 호출
+        async function handleFriendRequest(friendshipId, action, buttonElement) {
+            if (!currentUser) return;
+            try {
+                const token = await currentUser.getIdToken();
+                const response = await fetch(`${API_URL}/api/friend-requests/${friendshipId}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
                         action: action 
                     })
                 });
 
-                if (!res.ok) {
-                    const errorData = await res.json();
-                    throw new Error(errorData.detail || `요청 처리 실패: ${res.status}`);
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || errorData.detail || `친구 요청을 처리하던 중 오류가 발생했습니다.`);
                 }
                 
                 alert(action === 'accept' ? '친구가 되었습니다!' : '요청을 거절했습니다.');
@@ -412,66 +370,16 @@
                 loadFriendRequests(); 
 
             } catch (error) {
-                console.error(`요청 처리 실패 (${action}):`, error);
+                if (isLocal) console.error("[친구 요청 처리 실패]:", error);
                 alert(`요청 처리 실패: ${error.message}`);
                 buttonElement.disabled = false;
                 buttonElement.textContent = action === 'accept' ? '수락' : '거절';
             }
         }
 
-        // 받은 친구 요청에 동적으로 생성된 요청 처리(요청 수락/거절) 버튼에 이벤트 리스너 연결
-        function attachRequestHandleListeners() {
-            document.querySelectorAll('.handle-request-btn').forEach(button => {
-                if (!button.dataset.listenerAttached) {
-                    button.addEventListener('click', async (event) => {
-                        const btn = event.currentTarget;
-                        const requesterUid = btn.getAttribute('data-requester-uid');
-                        const action = btn.getAttribute('data-action');
-                        await handleFriendRequest(requesterUid, action, btn);
-                    });
-                    button.dataset.listenerAttached = 'true';
-                }
-            });
-        }
 
-
-        /* =================================================================
-        * 단체 채팅방 생성 
-        * ================================================================= */
-        // 친구 목록 조회
-        async function loadFriends() {
-            try {
-                const res = await fetch(`${fastapiUrl}/api/friends/list`, {
-                    headers: { "Authorization": `Bearer ${idToken}` }
-                });
-
-                if (!res.ok) throw new Error('친구 목록 로드 실패');
-
-                const data = await res.json(); 
-
-                // API 응답이 배열인지 객체인지 확인
-                if (Array.isArray(data)) {
-                    allFriends = data;
-                } else if (data.friends && Array.isArray(data.friends)) {
-                    allFriends = data.friends;
-                } else {
-                    allFriends = [];
-                }
-                
-                renderFriends(allFriends);
-            } catch (err) {
-                console.error('친구 목록 로드 오류:', err);
-                friendsListContainer.innerHTML = `
-                    <div class="text-center text-red-500 mt-4">
-                        <p>친구 목록을 불러올 수 없습니다. 서버 상태를 확인하세요.</p>
-                        <button onclick="location.reload()" class="mt-2 text-orange-500 underline">다시 시도</button>
-                    </div>
-                `;
-            }
-        }
-
-        // 친구 목록 렌더링
-        function renderFriends(friends) {
+        // 친구 목록 DOM 요소 생성
+        function renderFriendList(friends) {
             friendsListContainer.innerHTML = '';
             
             if (friends.length === 0) {
@@ -481,18 +389,104 @@
 
             friends.forEach(friend => {
                 const friendElement = document.createElement('label');
-                friendElement.className = 'flex items-center p-2 rounded-lg hover:bg-gray-50 cursor-pointer';
+                friendElement.className = 'flex items-center p-2 mb-2 rounded-lg hover:bg-gray-50 cursor-pointer';
                 
-                const profileImg = friend.profile_image || defaultProfileImg;
+                const profileImg = friend.profile_image || DEFAULT_PROFILE_IMAGE;
                 
                 friendElement.innerHTML = `
-                    <img src="${profileImg}" class="w-10 h-10 rounded-full mr-4 object-cover" alt="${friend.nickname}">
+                    <img src="${profileImg}" alt="${friend.nickname}님의 프로필 이미지"
+                        class="w-10 h-10 rounded-full mr-4 object-cover">
                     <span class="flex-1 text-gray-800">${friend.nickname}</span>
-                    <input type="checkbox" class="custom-checkbox w-5 h-5 border-gray-300 focus:ring-transparent" data-uid="${friend.firebase_uid}" ${selectedFriends.has(friend.firebase_uid) ? 'checked' : ''}>
-                `;
+                    <input type="checkbox" class="custom-checkbox w-5 h-5 border-gray-300 focus:ring-transparent"
+                            data-firebase-uid="${friend.firebaseUid || friend.firebase_uid}" ${selectedFriends.has(friend.id) ? 'checked' : ''}>
+                    `;
                 friendsListContainer.appendChild(friendElement);
             });
         }
+
+        // 사용자 검색 결과 DOM 요소 생성 - 사용자 프로필, 친구 요청 버튼
+        function createUserSearchResult(user) {
+            let buttonHtml = '';
+            // 관계 상태(relation_status)에 따라 버튼 렌더링
+            if (user.relation_status === "friend") {
+                buttonHtml = `<span class="text-sm text-green-500 font-medium px-3 py-1 rounded-md bg-green-100">친구</span>`;
+            } else if (user.relation_status === "sent_request") {
+                buttonHtml = `<span class="text-sm text-gray-500 font-medium px-3 py-1 rounded-md bg-gray-100">요청 완료</span>`;
+            } else if (user.relation_status === "received_request") {
+                buttonHtml = `<span class="text-sm text-orange-500 font-medium px-3 py-1 rounded-md bg-orange-100">요청 받음</span>`; 
+            } else {
+                // 관계가 없는 경우 (친구 요청 버튼 표시)
+                buttonHtml = `<button data-user-uid="${user.firebaseUid}" data-nickname="${user.nickname}"
+                                    class="send-friend-request-btn text-sm text-white bg-orange-500 hover:bg-orange-600 px-3 py-1 rounded-md">
+                                친구 요청
+                            </button>`;
+            }
+
+            const profileItem = document.createElement('div');
+            profileItem.className = "flex items-center justify-between p-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors";
+            profileItem.innerHTML = `
+                <div class="flex items-center space-x-3">
+                    <img class="h-10 w-10 rounded-full object-cover"
+                        src="${user.profile_image || DEFAULT_PROFILE_IMAGE}" alt="${user.nickname}님의 프로필 사진">
+                    <span class="font-medium text-gray-700">${user.nickname}</span>
+                </div>
+                <div class="flex-shrink-0">
+                    ${buttonHtml}  
+                </div>
+            `;
+            return profileItem;
+        }
+
+        // 친구 요청 목록 DOM 요소 생성 
+        function renderFriendRequest(req) {
+            const item = document.createElement('div');
+            item.className = "flex items-center justify-between p-2 rounded-lg bg-gray-50";
+            item.innerHTML = `
+                <div class="flex items-center space-x-3">
+                    <img class="h-10 w-10 rounded-full object-cover"
+                        src="${req.profileImage || DEFAULT_PROFILE_IMAGE}" alt="${req.nickname}님의 프로필 이미지">
+                    <span class="font-medium text-gray-700">${req.nickname}</span>
+                </div>
+                <div class="space-x-2 flex-shrink-0">
+                    <button data-action="accept" data-friendship-id="${req.id}" 
+                            class="handle-request-btn text-sm text-white bg-blue-500 hover:bg-blue-600 px-3 py-1 rounded-md">수락</button>
+                    <button data-action="reject" data-friendship-id="${req.id}"
+                            class="handle-request-btn text-sm text-white bg-red-500 hover:bg-red-600 px-3 py-1 rounded-md">거절</button>
+                </div>
+            `;
+            return item;
+        }
+
+        // 검색 결과 DOM 요소의 '친구 요청' 버튼에 이벤트 리스너 연결
+        function attachFriendRequestListeners() {
+            document.querySelectorAll('.send-friend-request-btn').forEach(button => {
+                if (!button.dataset.listenerAttached) {
+                    button.addEventListener('click', async (event) => {
+                        const btn = event.currentTarget;
+                        const receiverUid = btn.dataset.userUid;
+                        const receiverNickname = btn.dataset.nickname;
+                        await sendFriendRequest(receiverUid, receiverNickname, btn);
+                    });
+                    button.dataset.listenerAttached = 'true';
+                }
+            });
+        }
+
+        // 친구 요청 DOM 요소의 요청 처리(요청 수락/거절) 버튼에 이벤트 리스너 연결
+        function attachRequestHandleListeners() {
+            document.querySelectorAll('.handle-request-btn').forEach(button => {
+                if (!button.dataset.listenerAttached) {
+                    button.addEventListener('click', async (event) => {
+                        const btn = event.currentTarget;
+                        const friendshipId = Number(btn.dataset.friendshipId);
+                        const action = btn.dataset.action;
+                        await handleFriendRequest(friendshipId, action, btn);
+                    });
+                    button.dataset.listenerAttached = 'true';
+                }
+            });
+        }
+
 
         //선택된 친구 수에 따라 '확인' 버튼과 단체채팅방 이름 입력 UI 업데이트
         function updateConfirmButton() {
@@ -528,7 +522,7 @@
                 const groupName = groupNameInput.value.trim() || null;
                 const invitedUids = Array.from(selectedFriends);
 
-                const res = await fetch(`${fastapiUrl}/api/chat/create`, {
+                const res = await fetch(`${API_URL}/api/chat/create`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -569,7 +563,7 @@
             if (user) {
                 currentUser = user;
                 idToken = await user.getIdToken();
-                await loadFriends();
+                await getFriendList();
             } else {
                 alert('로그인이 필요합니다.');
                 window.location.href = 'index.html'; // 로그인 페이지로 이동
@@ -620,24 +614,19 @@
             const filteredFriends = allFriends.filter(friend => 
                 friend.nickname.toLowerCase().includes(searchTerm)
             );
-            renderFriends(filteredFriends);
+            renderFriendList(filteredFriends);
         });
 
         // 친구 목록에서 체크박스 이벤트 핸들러
         friendsListContainer.addEventListener('change', (e) => {
             if (e.target.type === 'checkbox') {
-                const friendUid = e.target.dataset.uid;
+                const friendUid = e.target.dataset.firebaseUid;
                 if (e.target.checked) {
                     selectedFriends.add(friendUid);
                 } else {
                     selectedFriends.delete(friendUid);
                 }
                 updateConfirmButton();
-                const searchTerm = friendsSearchInput.value.toLowerCase();
-                const filteredFriends = allFriends.filter(friend => 
-                    friend.nickname.toLowerCase().includes(searchTerm)
-                );
-                renderFriends(filteredFriends);
             }
         });
     </script>
