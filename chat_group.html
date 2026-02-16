@@ -522,7 +522,7 @@
                 const groupName = groupNameInput.value.trim() || null;
                 const invitedUids = Array.from(selectedFriends);
 
-                const res = await fetch(`${API_URL}/api/chat/create`, {
+                const res = await fetch(`${API_URL}/api/chatrooms`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -530,23 +530,25 @@
                     },
                     body: JSON.stringify({
                         name: groupName,
-                        is_group: invitedUids.length >= 1, 
-                        invited_uids: invitedUids
+                        isGroup: invitedUids.length >= 1, 
+                        members: invitedUids
                     })
                 });
 
                 if (!res.ok) {
                     const errorData = await res.json();
-                    throw new Error(errorData.detail || '채팅방 생성 실패');
+                    throw new Error(errorData.message || errorData.detail || `채팅방을 생성하던 중 오류가 발생했습니다.`);
                 }
 
                 const data = await res.json();
-                
-                // 생성된 채팅방으로 이동 (data.chatroom_id 필요)
-                window.location.href = `chat.html?roomId=${data.chatroom_id}`;
+
+                const locationHeader = res.headers.get('Location');
+                const roomId = locationHeader ? locationHeader.split('/').pop() : data.id;
+
+                window.location.href = `chat.html?roomId=${roomId}&isNew=true`;
 
             } catch (err) {
-                console.error('채팅방 생성 오류:', err);
+                if (isLocal) console.error('[채팅방 생성 오류]:', err);
                 alert(`채팅방 생성 실패: ${err.message}`);
                 
                 // 로딩 해제
