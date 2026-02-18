@@ -345,7 +345,7 @@
         const auth = getAuth(app);
 
         const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-        const fastapiUrl = isLocal ? "http://127.0.0.1:8000" : "https://bapick.duckdns.org";
+        const API_URL = isLocal ? "http://127.0.0.1:8000" : "https://bapick.duckdns.org";
 
         const userNameEl = document.getElementById('user-nickname');
         const userbirthdateEl = document.getElementById('user-birthdate');
@@ -356,6 +356,7 @@
         const recommendationAdviceEl = document.getElementById('recommendation-advice');
 
         const locationTextEl = document.getElementById('location-text');
+        const nearbyRestaurantsHeading = document.getElementById('nearby-restaurants-heading');
 
         // 오행 통계 요소 맵
         const statElements = {
@@ -406,12 +407,12 @@
                                 locationTextEl.value = '주소 정보 없음';
                             }
                         } catch (error) {
-                            console.error("Reverse geocoding error:", error);
+                            if (isLocal) console.error("Reverse geocoding error:", error);
                             locationTextEl.value = '주소를 변환할 수 없습니다.';
                         }
                     },
                     (error) => {
-                        console.error(`Geolocation error: ${error.code} - ${error.message}`);
+                        if (isLocal) console.error(`Geolocation error: ${error.code} - ${error.message}`);
                         switch (error.code) {
                             case error.PERMISSION_DENIED:
                                 locationTextEl.value = "위치 권한이 거부되었습니다.";
@@ -431,42 +432,6 @@
             } else {
                 locationTextEl.value = 'Geolocation을 지원하지 않습니다.';
             }
-        }
-
-        // 오행 비율 바 업데이트 함수
-        function updateSajuStats(stats) {
-            const MAX_SCALING_VALUE = 60;
-
-            for (const elementKey in stats) {
-                const percentage = stats[elementKey];
-                const element = statElements[elementKey];
-
-                let scaledWidth = (percentage / MAX_SCALING_VALUE) * 100;
-
-                if (scaledWidth > 100) {
-                    scaledWidth = 100;
-                }
-
-                if (element && element.bar && element.value) {
-                    element.bar.style.width = `${scaledWidth.toFixed(1)}%`;
-                    element.value.textContent = Math.round(percentage);
-                }
-            }
-        };
-
-        // 오행 분석 및 추천 메시지 가져오는 함수
-        async function fetchRecommendation(idToken) {
-            const res = await fetch(`${fastapiUrl}/api/saju/analyze`, {
-                headers: { 'Authorization': `Bearer ${idToken}` }
-            });
-
-            if (!res.ok) {
-                if (res.status === 404) {
-                    throw new Error("오행 분석에 필요한 데이터가 아직 준비되지 않았습니다.");
-                }
-                throw new Error(`API 오류: ${res.status} ${res.statusText}`);
-            }
-            return res.json();
         }
 
         // 근처 식당 정보 렌더링
@@ -557,26 +522,24 @@
                     lon = pos.coords.longitude;
                 }
 
-                const response = await fetch(`${fastapiUrl}/api/restaurants/nearby?lat=${lat}&lon=${lon}&limit=15`, {
+                const response = await fetch(`${API_URL}/api/restaurants/nearby?lat=${lat}&lon=${lon}&limit=15`, {
                     method: 'GET',
                     headers: { 'Authorization': `Bearer ${idToken}` },
                 });
 
+                const data = await response.json();
+
                 if (!response.ok) {
-                    if (response.status === 404) {
-                        throw new Error('주변 식당 정보를 가져오지 못했습니다.');
-                    }
-                    throw new Error(`식당 목록 API 오류: ${response.status} ${response.statusText}`);
+                    throw new Error(data.message || data.detail || '주변 식당 정보를 가져오지 못했습니다.');
                 }
 
-                const data = await response.json();
-                const restaurants = data.restaurants || [];
+                const restaurants = Array.isArray(data) ? data : [];
 
                 // 추천 식당 목록을 로컬 스토리지에 저장
                 try {
                     localStorage.setItem('recommendedRestaurants', JSON.stringify(restaurants));
                 } catch (e) {
-                    console.error("로컬 스토리지 저장 실패:", e);
+                    if (isLocal) console.error("로컬 스토리지 저장 실패:", e);
                 }
 
                 if (restaurants.length === 0) {
@@ -591,106 +554,132 @@
                 });
 
             } catch (err) {
-                console.error("Restaurant fetch failed:", err);
-                carouselEl.innerHTML = `<p class="text-gray-500 p-3">${err.message || '식당 정보를 불러오는 중 오류가 발생했습니다.'}</p>`;
+                if (isLocal) console.error("Restaurant fetch failed:", err);
+                carouselEl.innerHTML = `<p class="text-gray-500 p-3">식당 정보를 불러오는 중 오류가 발생했습니다.</p>`;
+            }
+        };
+
+        // 홈 화면 초기화 총괄 함수
+        async function initHomePage(user) {
+            try {
+                const idToken = await user.getIdToken();
+                
+                // 유저 프로필 및 사주 데이터 병렬 로드
+                const [userRes, sajuRes] = await Promise.allSettled([
+                    loadUserProfile(idToken),
+                    loadTodaySaju(idToken)
+                ]);
+
+                // 위치 설정 로드
+                loadSavedLocation();
+                
+                // 맛집 정보 로드
+                await fetchNearbyRestaurants(idToken);
+                
+            } catch (err) {
+                if (isLocal) console.error("[Init Error]:", err);
+            }
+        }
+
+        // 사용자 정보 로드 및 UI 업데이트 (프로필 사진, 닉네임, 생년월일)
+        async function loadUserProfile(idToken) {
+            try {
+                const fields = ['nickname', 'birthDate', 'profileImage'];
+                const res = await fetch(`${API_URL}/api/users/me?fields=${fields.join(',')}`, {
+                    headers: { 'Authorization': `Bearer ${idToken}` }
+                });
+
+                if (!res.ok) {
+                    const errorData = await res.json();
+                    throw new Error(errorData.message || errorData.detail || `사용자 정보 조회에 실패했습니다.`);
+                }
+
+                const userData = await res.json();
+                
+                // UI 업데이트
+                userNameEl.textContent = `${userData.nickname}님` || '사용자님';
+                userbirthdateEl.textContent = userData.birthDate || '';
+                userProfileImageEl.src = userData.profileImage || '/assets/images/default-profile.jpg';
+                nearbyRestaurantsHeading.textContent = `${userData.nickname}님 근처 맛집`;
+            } catch (err) {
+                if (isLocal) console.error("[UserProfile Load Error]:", err);
+                //showCustomToast(`사용자 정보를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.`);
+                // 오류 메시지 동기화
+                userNameEl.textContent = '정보를 불러오지 못했습니다';
+                userbirthdateEl.textContent = '';
+            }
+        }
+
+        // 오늘의 사주 및 추천 메시지 로드
+        async function loadTodaySaju(idToken) {
+            try {
+                const res = await fetch(`${API_URL}/api/saju`, {
+                    headers: { 'Authorization': `Bearer ${idToken}` }
+                });
+
+                if (!res.ok) {
+                    if (res.status === 404) {
+                        throw new Error("오행 분석에 필요한 데이터가 아직 준비되지 않았습니다.");
+                    }
+                    throw new Error(`API 오류: ${res.status} ${res.statusText}`);
+                }
+                
+                const sajuData = await res.json();
+
+                const today = new Date();
+                const month = (today.getMonth() + 1).toString().padStart(2, '0');
+                const day = today.getDate().toString().padStart(2, '0');
+
+                recommendationTypeEl.textContent = `${month}/${day} 오늘의 운세`;
+                recommendationHeadlineEl.textContent = sajuData.headline;
+                recommendationAdviceEl.textContent = sajuData.advice;
+
+                // 최종 보정 오행 비율
+                updateSajuStats({
+                    wood: sajuData.ohengScores['목(木)'] || 0,
+                    fire: sajuData.ohengScores['화(火)'] || 0,
+                    earth: sajuData.ohengScores['토(土)'] || 0,
+                    metal: sajuData.ohengScores['금(金)'] || 0,
+                    water: sajuData.ohengScores['수(水)'] || 0
+                });
+            } catch (err) {
+                if (isLocal) console.error("[Saju Load Error]:", err); 
+                //showCustomToast(`오늘의 운세를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.`);
+
+                // 오류 메시지 동기화
+                recommendationTypeEl.textContent = '정보 없음';
+                recommendationHeadlineEl.textContent = '추천 분석 정보를 불러올 수 없습니다.';
+                recommendationAdviceEl.textContent = '서버 오류가 발생했습니다.';
+            }
+        }
+
+        // 오행 비율 바 업데이트 함수
+        function updateSajuStats(stats) {
+            const MAX_SCALING_VALUE = 60;
+
+            for (const elementKey in stats) {
+                const percentage = stats[elementKey];
+                const element = statElements[elementKey];
+
+                let scaledWidth = (percentage / MAX_SCALING_VALUE) * 100;
+
+                if (scaledWidth > 100) {
+                    scaledWidth = 100;
+                }
+
+                if (element && element.bar && element.value) {
+                    element.bar.style.width = `${scaledWidth.toFixed(1)}%`;
+                    element.value.textContent = Math.round(percentage);
+                }
             }
         };
 
         // 로그인 인증 및 데이터 로드
         onAuthStateChanged(auth, async (user) => {
-            if (!user) {
-                // 로그인 안 되어 있으면 로그인 페이지로 리디렉션
+            if (user) {
+                initHomePage(user); // 로그인 시 홈 초기화 시작
+            } else {
                 window.location.href = 'index.html';
-                return;
-            }
-
-            const idToken = await user.getIdToken();
-            let userData = {};
-            let sajuStats = {};
-
-            // 사용자 정보 (프로필 사진, 닉네임, 생년월일) 및 기본 오행 비율 로드
-            try {
-                const sajuFields = ['ohengWood', 'ohengFire', 'ohengEarth', 'ohengMetal', 'ohengWater'];
-                const fields = ['nickname', 'birthDate', 'profileImage', ...sajuFields];
-                const res = await fetch(`${fastapiUrl}/api/users/me?fields=${fields.join(',')}`, {
-                    headers: { 'Authorization': `Bearer ${idToken}` }
-                });
-
-                if (!res.ok) throw new Error(`API error: ${res.status}`);
-                userData = await res.json();
-
-                const nickname = userData.nickname ? `${userData.nickname}님` : '사용자';
-                const birthDate = userData.birthDate || '생년월일 정보 없음';
-                const profileImage = userData.profileImage;
-
-                userNameEl.textContent = nickname;
-                userbirthdateEl.textContent = birthDate;
-                userProfileImageEl.src = profileImage;
-
-                const nearbyRestaurantsHeading = document.getElementById('nearby-restaurants-heading');
-                if (userData.nickname) {
-                    nearbyRestaurantsHeading.textContent = `${userData.nickname}님 근처 맛집`;
-                }
-
-                sajuStats = {
-                    wood: userData.ohengWood || 0.0,
-                    fire: userData.ohengFire || 0.0,
-                    earth: userData.ohengEarth || 0.0,
-                    metal: userData.ohengMetal || 0.0,
-                    water: userData.ohengWater || 0.0,
-                };
-
-                // 초기 비율 업데이트
-                updateSajuStats(sajuStats);
-
-                // 위치 설정
-                loadSavedLocation();
-
-            } catch (err) {
-                console.error("User profile fetch failed:", err);
-                const errorMsg = '정보를 불러오지 못했습니다';
-                // 오류 메시지 동기화
-                userNameEl.textContent = errorMsg;
-                userbirthdateEl.textContent = '';
-            }
-
-            // 2. 일진에 따라 보정된 오행 비율 및 오늘의 추천 메시지 로드
-            try {
-                const analysisData = await fetchRecommendation(idToken);
-
-                const headline = analysisData.recommendation_headline;
-                const advice = analysisData.recommendation_advice;
-
-                const today = new Date();
-                const month = (today.getMonth() + 1).toString().padStart(2, '0');
-                const day = today.getDate().toString().padStart(2, '0');
-                const customTitle = `${month}/${day} 오늘의 운세`;
-
-                recommendationTypeEl.textContent = customTitle;
-                recommendationHeadlineEl.textContent = headline;
-                recommendationAdviceEl.textContent = advice;
-
-                // 최종 보정 오행 비율
-                const finalOheng = analysisData.oheng_analysis_scores;
-                const mappedStats = {
-                    wood: finalOheng['목(木)'] || 0,
-                    fire: finalOheng['화(火)'] || 0,
-                    earth: finalOheng['토(土)'] || 0,
-                    metal: finalOheng['금(金)'] || 0,
-                    water: finalOheng['수(水)'] || 0
-                };
-
-                // 최종 보정 비율로 업데이트
-                updateSajuStats(mappedStats);
-
-                await fetchNearbyRestaurants(idToken);
-            } catch (err) {
-                console.error("Recommendation fetch failed:", err);
-                const errorMsg = err.message || '서버 오류가 발생했습니다.';
-                // 오류 메시지 동기화
-                recommendationTypeEl.textContent = '정보 없음';
-                recommendationHeadlineEl.textContent = '추천 분석 정보를 불러올 수 없습니다.';
-                recommendationAdviceEl.textContent = errorMsg;
             }
         });
 
@@ -801,8 +790,9 @@
         });
 
         overlay.addEventListener('click', closeAllPopups);
+
         /* =========================================================
-         * PC 마우스 드래그 스크롤 (Drag to Scroll)
+         * 식당 카드 컨테이너 - PC 마우스 드래그 스크롤 (Drag to Scroll)
          * ======================================================= */
         const carousel = document.getElementById('restaurant-carousel');
         let isDown = false;

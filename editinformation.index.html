@@ -69,71 +69,72 @@
     <div class="h-full flex flex-col">
         
         <header class="grid grid-cols-3 items-center px-2 py-4 border-b border-gray-200 flex-shrink-0">
-            <div class="flex-shrink-0 w-6 h-6">
-                <a href="mypage.index.html" class="text-gray-600 hover:text-gray-900">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 19l-7-7 7-7"/></svg>
-                </a>
-            </div>
+            <a href="mypage.index.html" class="text-gray-600 hover:text-gray-900">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 19l-7-7 7-7"/></svg>
+            </a>
             <h1 class="text-xl font-bold text-center text-gray-800 col-span-1 whitespace-nowrap">회원정보 수정</h1>
-            <div class="justify-self-end flex-shrink-0 w-6 h-6"></div>
+            <div class="w-6 h-6"></div>
         </header>
 
         
         <main class="flex-1 overflow-y-auto bg-white p-6 pb-20 flex flex-col">
             <form id="edit-form" class="space-y-6 flex-1 max-w-md w-full mx-auto flex flex-col">
-                
-                
-                
                 <div class="mb-4">
-                    <label for="birthdate-input" class="block text-sm font-medium text-gray-700">생년월일</label>
-                    <div class="flex items-stretch mt-1 space-x-2 w-full">
-                        
-                        <div class="relative flex-shrink-0">
-                            <select id="birth_calendar" name="calendar_type" class="appearance-none w-24 sm:w-28 px-3 rounded-lg border border-gray-300 bg-gray-50 text-gray-700 input-focus-custom p-3.5">
-                                <option value="solar">양력</option>
-                                <option value="lunar">음력</option>
-                                <option value="lunar_leap">음력(윤달)</option>
-                            </select>
-                            <div class="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-gray-700">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path>
-                                </svg>
+                    <fieldset>
+                        <legend class="block text-sm font-medium text-gray-700">생년월일</legend>
+                        <div class="flex items-stretch mt-1 space-x-2 w-full">
+                            <div class="relative flex-shrink-0">
+                                <select id="birth_calendar" name="calendar_type" aria-label="생년월일 달력 기준 선택" class="appearance-none w-24 sm:w-28 px-3 rounded-lg border border-gray-300 bg-gray-50 text-gray-700 input-focus-custom p-3.5">
+                                    <option value="solar">양력</option>
+                                    <option value="lunar">음력</option>
+                                    <option value="lunar_leap">음력(윤달)</option>
+                                </select>
+                                <div class="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-gray-700">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </div>
                             </div>
-                        </div>
 
-                        <input type="date" id="birthdate-input" name="birth_date" class="flex-1 min-w-0 px-3 bg-gray-50 border border-gray-300 rounded-lg shadow-sm input-focus-custom p-3.5">
-                    </div>
+                            <input type="date" id="birthdate-input" name="birth_date" aria-label="출생 날짜 선택" class="flex-1 min-w-0 px-3 bg-gray-50 border border-gray-300 rounded-lg shadow-sm input-focus-custom p-3.5">
+                        </div>
+                    </fieldset>
                 </div>
                 
                 <div class="mb-4">
-                    <label for="birth-hour" class="block text-sm font-medium text-gray-700">태어난 시간</label>
-                    <div class="flex items-center mt-1 space-x-4 w-full">
-                        
-                        <div id="birth-time-container" class="flex items-center justify-center w-24 border border-gray-300 rounded-lg bg-gray-50 p-3.5 text-gray-700">
-                            <input type="text" id="birth-hour" name="birth_hour" maxlength="2" placeholder="19" class="w-8 text-center bg-transparent focus:outline-none">
-                            <span class="text-gray-700 mx-0.5">:</span>
-                            <input type="text" id="birth-minute" name="birth_minute" maxlength="2" placeholder="00" class="w-8 text-center bg-transparent focus:outline-none">
-                        </div>
+                    <fieldset>
+                        <legend class="block text-sm font-medium text-gray-700 mb-3">태어난 시간</legend>
+                        <div class="flex items-center mt-1 space-x-4 w-full">
+                            
+                            <div id="birth-time-container" class="flex items-center justify-center w-24 border border-gray-300 rounded-lg bg-gray-50 p-3.5 text-gray-700">
+                                <input type="text" id="birth-hour" name="birth_hour" aria-label="태어난 시" maxlength="2" placeholder="00" class="w-8 text-center bg-transparent focus:outline-none">
+                                <span class="text-gray-700 mx-0.5" aria-hidden="true">:</span>
+                                <input type="text" id="birth-minute" name="birth_minute" aria-label="태어난 분" maxlength="2" placeholder="00" class="w-8 text-center bg-transparent focus:outline-none">
+                            </div>
 
-                        <label class="flex items-center text-sm text-gray-600">
-                            <input type="checkbox" id="unknown-time" name="unknown_time" class="rounded border-gray-300 focus:ring-[#FF7A5A]">
-                            <span class="ml-1">시간 모름</span>
-                        </label>
-                    </div>
+                            <label class="flex items-center text-sm text-gray-600 cursor-pointer">
+                                <input type="checkbox" id="unknown-time" name="unknown_time" class="rounded border-gray-300 focus:ring-[#FF7A5A]">
+                                <span class="ml-1">시간 모름</span>
+                            </label>
+                        </div>
+                    </fieldset>
                 </div>
                 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-3">성별</label>
-                    <div class="flex items-center space-x-6">
-                        <label class="flex items-center">
-                            <input type="radio" name="gender" value="male" class="w-5 h-5 mr-2 border-gray-300 text-[#FF7A5A] focus:ring-[#FF7A5A]">
-                            <span class="text-gray-700">남자</span>
-                        </label>
-                        <label class="flex items-center">
-                            <input type="radio" name="gender" value="female" class="w-5 h-5 mr-2 border-gray-300 text-[#FF7A5A] focus:ring-[#FF7A5A]">
-                            <span class="text-gray-700">여자</span>
-                        </label>
-                    </div>
+                    <fieldset>
+                        <legend class="block text-sm font-medium text-gray-700 mb-3">성별</legend>
+                        
+                        <div class="flex items-center space-x-6">
+                            <label class="flex items-center cursor-pointer">
+                                <input type="radio" name="gender" value="male" class="w-5 h-5 mr-2 border-gray-300 text-[#FF7A5A] focus:ring-[#FF7A5A]">
+                                <span class="text-gray-700">남자</span>
+                            </label>
+                            <label class="flex items-center cursor-pointer">
+                                <input type="radio" name="gender" value="female" class="w-5 h-5 mr-2 border-gray-300 text-[#FF7A5A] focus:ring-[#FF7A5A]">
+                                <span class="text-gray-700">여자</span>
+                            </label>
+                        </div>
+                    </fieldset>
                 </div>
             </form>
         </main>
@@ -150,16 +151,15 @@
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
         import { firebaseConfig } from "./firebase-config.js"; 
 
-        // Firebase 앱 초기화
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
 
-        const fastapiUrl = "https://bapick.duckdns.org"
+        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        const API_URL = isLocal ? "http://127.0.0.1:8000" : "https://bapick.duckdns.org";
 
         let idToken = null;
         let currentUser = null;
 
-        // ✅ [사용] 이미 HTML에 정의된 토스트 요소를 가져옵니다.
         const customToast = document.getElementById('custom-toast'); 
         const toastDuration = 2500; 
 
@@ -177,28 +177,33 @@
             }, toastDuration);
         }
 
-        // 1. 사용자 정보 불러오기
-        async function loadUserInfo(token) {
+        // 사용자 정보 조회
+        async function loadUserInfo(user) {
             try {
-                const response = await fetch(`${fastapiUrl}/api/users/me`, {
+                const idToken = await user.getIdToken();
+
+                // 1. 사용자 정보 조회 요청
+                const fields = ['birthCalendar', 'birthDate', 'birthTime', 'gender'];
+                const res = await fetch(`${API_URL}/api/users/me?fields=${fields.join(',')}`, {
                     headers: {
-                        'Authorization': `Bearer ${token}` 
+                        'Authorization': `Bearer ${idToken}` 
                     }
                 });
 
-                if (!response.ok) {
-                    throw new Error(`데이터 로드 실패: ${response.statusText}`);
+                if (!res.ok) {
+                    const errorData = await res.json();
+                    throw new Error(errorData.message || errorData.detail || `프로필 로드에 실패했습니다.`);
                 }
 
-                const data = await response.json();
+                const data = await res.json();
                 
-                // 폼 필드 채우기
-                // document.getElementById('user-email').value = data.email || ''; // HTML에 해당 ID가 없으므로 주석 처리
+                // 2. UI 업데이트
+                // 1) 생년월일 및 달력 종류
                 document.getElementById('birthdate-input').value = data.birthDate || '';
                 document.getElementById('birth_calendar').value = data.birthCalendar || 'solar';
                 
-                // 시간 필드 처리
-                const birthTime = data.birthTime; // 'HH:MM' 또는 null
+                // 2) 출생시간
+                const birthTime = data.birthTime; // 'HH:MM:SS'
                 if (birthTime) {
                     const [h, m] = birthTime.split(':');
                     document.getElementById('birth-hour').value = h;
@@ -209,84 +214,74 @@
                     document.getElementById('birth-minute').value = '';
                     document.getElementById('unknown-time').checked = true;
                 }
-                toggleTimeInputState(); // 시간 모름 상태에 따라 input 활성화/비활성화 처리
+                toggleTimeInputState(); // 시간 모름 체크박스의 상태에 따른 input 활성화/비활성화 처리
                 
-                // 성별 필드 처리
-                if (data.gender) {
-                    const genderRadio = document.querySelector(`input[name="gender"][value="${data.gender.toLowerCase()}"]`);
-                    if (genderRadio) {
-                        genderRadio.checked = true;
-                    }
-                }
-
-            } catch (error) {
-                console.error("사용자 정보 로드 중 오류 발생:", error);
-                showCustomToast("사용자 정보를 불러오는 데 실패했습니다."); // ✅ [수정] alert -> 토스트
+                // 3. 성별
+                const genderValue = data.gender.toLowerCase();
+                const genderRadio = document.querySelector(`input[name="gender"][value="${genderValue}"]`);
+                if (genderRadio) genderRadio.checked = true;
+            } catch (err) {
+                if (isLocal) console.error("[UserProfile Load Error]:", err);
+                showCustomToast("사용자 정보 조회 중 오류가 발생했습니다.");
             }
         }
         
-        // 2. 폼 제출 핸들러 (정보 수정)
+        // 사용자 정보 수정 - 폼 제출 핸들러
         async function handleFormSubmit(event) {
             event.preventDefault(); // 기본 폼 제출 방지
 
-            const idToken = await currentUser.getIdToken();
-            if (!idToken) {
-                showCustomToast("로그인이 필요합니다."); // ✅ [수정] alert -> 토스트
-                return;
-            }
-
             const saveBtn = document.getElementById('save-info-btn');
-            saveBtn.disabled = true;
-            saveBtn.textContent = '저장 중...';
-
-            // 폼 데이터 수집
-            const form = event.target;
-            const formData = new FormData();
             
-            // 생년월일
-            const birthDate = document.getElementById('birthdate-input').value;
-            const birthCalendar = document.getElementById('birth_calendar').value;
-            if (birthDate) formData.append('birth_date', birthDate);
-            if (birthCalendar) formData.append('birth_calendar', birthCalendar);
-            
-            // 성별
-            const gender = form.querySelector('input[name="gender"]:checked');
-            if (gender) formData.append('gender', gender.value);
-
-            // 태어난 시간
-            const unknownTime = document.getElementById('unknown-time').checked;
-            formData.append('unknown_time', unknownTime ? 'true' : 'false');
-
-            if (!unknownTime) {
-                const hour = document.getElementById('birth-hour').value.padStart(2, '0');
-                const minute = document.getElementById('birth-minute').value.padStart(2, '0');
-                if (hour && minute) {
-                    formData.append('birth_time', `${hour}:${minute}`); 
-                }
-            }
-            
-
             try {
-                const response = await fetch(`${fastapiUrl}/api/users/me`, {
+                saveBtn.disabled = true;
+                saveBtn.textContent = '저장 중...';
+
+                const idToken = await currentUser.getIdToken();
+
+                // 1. 수정할 데이터를 담은 patchBody 객체 생성
+                const patchBody = {
+                    birthCalendar: document.getElementById('birth_calendar').value,
+                    birthDate: document.getElementById('birthdate-input').value,
+                    gender: document.querySelector('input[name="gender"]:checked').value,
+                    timeUnknown: document.getElementById('unknown-time').checked
+                };
+                
+                // 2. 출생시간 데이터 유효성 검사
+                if (!patchBody.timeUnknown) {
+                    const hour = document.getElementById('birth-hour').value.trim();
+                    const minute = document.getElementById('birth-minute').value.trim();
+                    
+                    if (hour && minute) {
+                        patchBody.birthHour = hour.padStart(2, '0');
+                        patchBody.birthMinute = minute.padStart(2, '0');
+                    } else {
+                        throw new Error("출생 시간을 정확히 입력해주세요.");
+                    }
+                }
+                
+                // 3. API 호출
+                const response = await fetch(`${API_URL}/api/users/me`, {
                     method: 'PATCH',
                     headers: {
-                        'Authorization': `Bearer ${idToken}`
+                        'Authorization': `Bearer ${idToken}`,
+                        'Content-Type': 'application/json'
                     },
-                    body: formData
+                    body: JSON.stringify(patchBody)
                 });
 
-                const result = await response.json();
 
                 if (!response.ok) {
-                    throw new Error(result.detail || "정보 수정에 실패했습니다. 서버 로그를 확인하세요.");
+                    const result = await response.json();
+                    throw new Error(result.message || "정보 수정에 실패했습니다.");
                 }
 
-                showCustomToast("회원 정보가 성공적으로 수정되었습니다."); // ✅ [수정] alert -> 토스트
-                await loadUserInfo(idToken); 
+                showCustomToast("회원 정보가 성공적으로 수정되었습니다.");
 
-            } catch (error) {
-                console.error("정보 수정 중 오류 발생:", error);
-                showCustomToast(`정보 수정에 실패했습니다: ${error.message}`); // ✅ [수정] alert -> 토스트
+                // 4. 사용자 정보 다시 로드
+                await loadUserInfo(currentUser); 
+            } catch (err) {
+                if (isLocal) console.error("[User Data Load Error]:", err);
+                showCustomToast("정보 수정 중 오류가 발생했습니다.");
             } finally {
                 saveBtn.disabled = false;
                 saveBtn.textContent = '저장';
@@ -300,7 +295,7 @@
         const timeContainer = document.getElementById('birth-time-container');
         const formElement = document.getElementById('edit-form');
         
-        // 3. 시간 모름 토글 상태 관리
+        // 시간 모름 토글 상태 관리
         function toggleTimeInputState() {
             const isDisabled = unknownTimeCheckbox.checked;
             
@@ -310,11 +305,19 @@
             if (isDisabled) {
                 birthHourInput.value = '';
                 birthMinuteInput.value = '';
+                // 비활성화 상태 스타일
                 timeContainer.classList.add('bg-gray-200', 'text-gray-500'); 
                 timeContainer.classList.remove('bg-gray-50', 'text-gray-700'); 
+                timeContainer.classList.add('cursor-not-allowed');
+                birthHourInput.classList.add('cursor-not-allowed');
+                birthMinuteInput.classList.add('cursor-not-allowed');
             } else {
+                // 활성화 상태 스타일
                 timeContainer.classList.remove('bg-gray-200', 'text-gray-500');
                 timeContainer.classList.add('bg-gray-50', 'text-gray-700');
+                timeContainer.classList.remove('cursor-not-allowed');
+                birthHourInput.classList.remove('cursor-not-allowed');
+                birthMinuteInput.classList.remove('cursor-not-allowed');
             }
         }
 
@@ -323,14 +326,17 @@
             if (!unknownTimeCheckbox.checked) {
                 timeContainer.classList.remove('border-gray-300');
                 timeContainer.classList.add('border-[#FF7A5A]');
-                timeContainer.style.boxShadow = '0 0 0 1px #FF7A5A'; // 커스텀 링 효과
+                timeContainer.style.boxShadow = '0 0 0 1px #FF7A5A';
             }
         }
 
         function handleTimeBlur(event) {
+            // 포커스가 이동한 대상이 timeContainer 내부에 있는 요소라면 무시 (예: 시->분 이동)
+            if (timeContainer.contains(event.relatedTarget)) return;
+
             timeContainer.classList.remove('border-[#FF7A5A]');
-            timeContainer.style.boxShadow = 'none';
             timeContainer.classList.add('border-gray-300');
+            timeContainer.style.boxShadow = 'none';
         }
         
         // 이벤트 리스너 연결
@@ -352,12 +358,12 @@
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 currentUser = user;
-                idToken = await user.getIdToken();
-                await loadUserInfo(idToken);
+                loadUserInfo(user);
             } else {
-                showCustomToast('로그인이 필요합니다.'); // ✅ [수정] alert -> 토스트
-                window.location.href = 'index.html'; // 로그인 페이지로 이동
-                return;
+                showCustomToast("로그인이 필요한 페이지입니다. 로그인 페이지로 이동합니다.");
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1000);
             }
         });
         

@@ -240,7 +240,7 @@
     const auth = getAuth(app);
 
     const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    const fastapiUrl = isLocal ? "http://127.0.0.1:8000" : "https://bapick.duckdns.org";
+    const API_URL = isLocal ? "http://127.0.0.1:8000" : "https://bapick.duckdns.org";
 
     // JSON 응답 
     marked.setOptions({ breaks: true, gfm: true});
@@ -251,9 +251,6 @@
     let currentRoomId = null;
     let isCreatingRoom = false;
     let currentChatroomIsGroup = false;
-    const defaultProfileImg = "/assets/images/default-profile.jpg"; // 프로필 이미지를 설정하지 않은 경우
-    let chatbotProfileImg = '/assets/images/logo-bg-orange.png'; 
-    const greetingMessage = "안녕! 나는 오늘의 운세에 맞춰 행운의 맛집을 추천해주는 밥풀이야🍀 지금 너한테 딱 맞는 메뉴 추천해줄까?"; 
     let websocket = null;
     let isWebSocketConnected = false;
     // 큐 관련 변수
@@ -279,7 +276,28 @@
 
     // 스크롤을 맨 아래로 내리는 함수
     function scrollToBottom(element) {
-        element.scrollTop = element.scrollHeight;
+        if (!element) return;
+        
+        // 브라우저가 다음 화면을 그리기 직전에 실행하도록 예약
+        requestAnimationFrame(() => {
+            element.scrollTop = element.scrollHeight;
+            
+            // 만약 이미지가 많다면 한 번 더 시도 (안전장치)
+            setTimeout(() => {
+                element.scrollTop = element.scrollHeight;
+            }, 50);
+        });
+    }
+
+    // 채팅방 입장 즉시 하드코딩된 인사 메시지를 보여줌 (속도 최적화)
+    function showHeadlineMessage() {
+        chatArea.innerHTML = ''; // 화면 초기화
+        const headline = {
+            role: 'assistant',
+            content: "안녕! 나는 오늘의 운세에 맞춰 행운의 맛집을 추천해주는 '밥풀이'야🍀 지금 너한테 딱 맞는 메뉴 추천해줄까? 먹고 싶은 메뉴 고르면 식당도 알려줄게!"
+        };
+        chatArea.appendChild(createTextMessage(headline));
+        scrollToBottom(chatArea);
     }
 
     // API 통신 실패 및 에러 UI 처리
@@ -314,7 +332,7 @@
 
         botLoadingDiv.innerHTML = `
             <div class="profile-icon">
-                <img class="rounded-full object-cover" src="${chatbotProfileImg}" alt="Profile">
+                <img class="rounded-full object-cover" src="/assets/images/logo-bg-orange.png" alt="Profile">
             </div>
             <div class="message-bubble system-bubble">
                 <div class="typing-indicator">
@@ -336,8 +354,8 @@
 
         const img = document.createElement('img');
         img.className = 'rounded-full object-cover';
-        img.alt = isAssistant ? 'Profile' : `${msg.sender_name} 프로필`;
-        img.src = isAssistant ? chatbotProfileImg : (msg.sender_profile_url || defaultProfileImg);
+        img.alt = isAssistant ? 'Profile' : `${msg.senderName} 프로필`;
+        img.src = isAssistant ? '/assets/images/logo-bg-orange.png' : (msg.senderProfileUrl || '/assets/images/default-profile.jpg');
 
         div.appendChild(img);
         return div;
@@ -348,8 +366,8 @@
         const messageBox = document.createElement('div');
         const isAssistant = (msg.role === 'assistant');
 
-        // sender_id로 현재 로그인한 사용자가 보낸 메시지인지 판단
-        const isMyMessage = msg.sender_id === currentUserUid && !isAssistant;
+        // senderId로 현재 로그인한 사용자가 보낸 메시지인지 판단
+        const isMyMessage = msg.senderId === currentUserUid && !isAssistant;
         messageBox.className = `message-box ${isMyMessage ? 'user-message' : 'system-message'}`; 
 
         let bubbleContent;
@@ -374,7 +392,7 @@
 
         } else {
             // 다른 사용자 메시지
-            const senderName = msg.sender_name || '알 수 없음';
+            const senderName = msg.senderName || '알 수 없음';
             const bubbleDiv = document.createElement('div');
             bubbleDiv.className = 'message-bubble system-bubble';
             bubbleDiv.innerHTML = `<div class="text-xs text-gray-600 mb-1">${senderName}</div>${contentHtml}`;
@@ -461,7 +479,7 @@
 
         return `
             <a href="detail.html?id=${restaurant.id}" class="restaurant-card overflow-hidden">
-                <img ㄴ
+                <img
                     src="${imageUrl}" 
                     alt="${restaurant.name} 이미지" 
                     class="w-full h-32 object-cover rounded-t-lg"
@@ -515,14 +533,14 @@
     // 메시지 타입에 따라 렌더링 처리 (일반 텍스트/식당 카드/위치 설정)
     function renderMessageByType(msg, chatArea) {
         const isCardMessage =
-            msg.message_type  === 'restaurant_cards' ||
+            msg.messageType  === 'restaurant_cards' ||
             (msg.role === 'assistant' && msg.content && msg.content.trim().startsWith('{"restaurants":'));
 
-        if (msg.message_type === "hidden_initial") {
+        if (msg.messageType === "hidden_initial") {
             return;
         }
                 
-        if (msg.message_type === 'location_select') {
+        if (msg.messageType === 'location_select') {
             isExpectingAddress = true; 
 
             const messageBox = createTextMessage(msg);
@@ -543,7 +561,7 @@
 
     // 방의 타입(그룹채팅/1:1)에 따라 채팅방 제목 및 placeholder 설정
     function setRoomTypeUI(data) {
-        currentChatroomIsGroup = data.is_group || false;
+        currentChatroomIsGroup = data.isGroup || false;
         let roomName;
             
         if (currentChatroomIsGroup) {
@@ -554,7 +572,7 @@
             roomName = `밥풀이`;
         }
 
-        headerTitle.textContent = data.chatroom_name || roomName; 
+        headerTitle.textContent = data.chatroomName || roomName; 
     }
 
     /* =========================================================
@@ -586,7 +604,7 @@
             websocket.close();
         }
 
-        websocket = new WebSocket(`${WS_URL}/api/chat/ws/${roomId}?token=${token}`);
+        websocket = new WebSocket(`${WS_URL}/api/chatrooms/ws/${roomId}?token=${token}`);
 
         // WebSocket 연결 완료를 Promise로 기다림
         return new Promise((resolve, reject) => {
@@ -631,12 +649,12 @@
             if (data.type === 'new_message') {
                 const msg = data.message;
                 // 숨김 타입 메시지는 화면에 표시하지 않음
-                if (msg.message_type === "hidden_initial") {
+                if (msg.messageType === "hidden_initial") {
                     return;
                 }
                 
                 // 자신이 보낸 메시지는 이미 화면에 표시했으므로 무시
-                if (msg.sender_id === currentUserUid && msg.role === 'user') {
+                if (msg.senderId === currentUserUid && msg.role === 'user') {
                     return;
                 }
                 
@@ -672,45 +690,44 @@
         if (currentRoomId !== null || isCreatingRoom || !idToken) return;
         
         isCreatingRoom = true;
-        chatArea.innerHTML = ''; 
 
-        const headlineMessage = { role: 'assistant', content: greetingMessage }; 
-        chatArea.appendChild(createTextMessage(headlineMessage));
-
-        scrollToBottom(chatArea);
-        
         try {
-            const res = await fetch(`${fastapiUrl}/api/chat/create`, {
+            const res = await fetch(`${API_URL}/api/chatrooms`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${idToken}`
                 },
-                body: JSON.stringify({})
+                body: JSON.stringify({
+                    isGroup: false,
+                    members: []
+                })
             });
 
             if (!res.ok) {
                 const errorData = await res.json();
-                throw new Error(errorData.detail || `API 요청 실패`);
+                throw new Error(errorData.message || errorData.detail || `채팅방 생성 중 오류가 발생했습니다.`);
             }
 
             const data = await res.json();
-            currentRoomId = data.chatroom_id; 
-            setRoomTypeUI(data); // 방의 타입(그룹/1:1)에 따라 제목과 placeholder 설정
+            const locationHeader = res.headers.get('Location');
+            currentRoomId = locationHeader ? locationHeader.split('/').pop() : data.id;
+            
+            // 방의 타입(그룹/1:1)에 따라 제목과 placeholder 설정
+            setRoomTypeUI(data);
             
             // WebSocket 연결이 완료될 때까지 기다림
             await connectWebSocket(currentRoomId, idToken);
-
             isRoomReady = true; 
 
-            // WebSocket 연결 후 큐 처리 (connectWebSocket 내부에서 이미 처리되지만 안전장치)
+            // 대기 중인 메시지가 있다면 처리
             if (messageQueue.length > 0) {
                 await processQueuedMessages();
             }
 
             return data;
         } catch (err) {
-            // 채팅방 생성 실패
+            if (isLocal) console.error("[채팅방 생성 실패]:", error);
             isRoomReady = false;
             messageQueue = []; // 큐 삭제
             alert("방 생성에 실패했습니다. 다시 시도해주세요.");
@@ -741,79 +758,45 @@
 
     // 기존 채팅방의 메시지를 렌더링
     async function loadMessages(roomId, container) {
-        if (!idToken || !roomId || String(roomId).toLowerCase() === 'null') {
-            console.error("메시지 로드 오류: 유효하지 않은 방 또는 토큰");
-            container.innerHTML = ''; 
-            return;
-        }
-
         messageInput.disabled = true;
 
         try {
-            const res = await fetch(`${fastapiUrl}/api/chat/messages/${roomId}`, {
+            const response = await fetch(`${API_URL}/api/chatrooms/${roomId}/messages`, {
                 headers: { "Authorization": `Bearer ${idToken}` }
             });
 
-            if (!res.ok) {
-                if (res.status === 403) {
-                    container.innerHTML = '<p class="text-center text-red-500">접근 권한이 없습니다.</p>';
-                    return;
-                }
-                throw new Error(`메시지 로드 실패: ${res.status}`);
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || errorData.detail || `채팅방의 메시지를 불러오는 중 오류가 발생했습니다.`);
             }
 
-            const data = await res.json();
-            const messages = Array.isArray(data) ? data : data.messages || [];
+            const data = await response.json();
+
             setRoomTypeUI(data); // 방의 타입(그룹/1:1)에 따라 제목, placeholder 설정
 
-            container.innerHTML = ''; 
+            if (data && data.messages && data.messages.length > 0) {
+                const newContent = document.createDocumentFragment();
 
-            messages.forEach(msg => {
-                // 위치 정보 메시지는 렌더링하지 않음
-                const isLocationMessage = msg.content && msg.content.startsWith('[LOCATION_SELECTED:');
+                data.messages.forEach(msg => {
+                    // llm 전용 메시지는 렌더링하지 않음
+                    if (msg.messageType === 'hidden_initial') return;
 
-                if (!isLocationMessage) renderMessageByType(msg, chatArea);
-            });
+                    // 위치 정보 메시지도 렌더링하지 않음
+                    const isLocationMessage = msg.content && msg.content.startsWith('[LOCATION_SELECTED:');
 
+                    if (!isLocationMessage) {
+                        renderMessageByType(msg, newContent);
+                    }
+                });
+                container.innerHTML = ''; // 비우자마자
+                container.appendChild(newContent); // 즉시 삽입 (깜빡임 최소화)
+            }
         } catch (err) {
-            console.error("메시지 로드 오류:", err);
+            if (isLocal) console.error("[메시지 로드 오류]:", err);
             container.innerHTML = `<p class="text-center text-red-500">메시지 로드 오류: ${err.message}</p>`;
         } finally {
-            scrollToBottom(container);
             messageInput.disabled = false;
             connectWebSocket(roomId, idToken);
-        }
-    }
-
-
-    // 채팅방 입장 시 인사 메시지 렌더링
-    async function renderInitialMessage(roomId, container) {
-        if (!idToken || !roomId) return;
-        
-        try {
-            const res = await fetch(`${fastapiUrl}/api/chat/messages/${roomId}`, {
-                headers: { "Authorization": `Bearer ${idToken}` }
-            });
-
-            if (!res.ok) { throw new Error("메시지 추가 로드 실패"); }
-            
-            const data = await res.json();
-            const messages = Array.isArray(data) ? data : data.messages || [];
-
-            if (messages.length > 1) {
-                const secondMessage = messages[1]; 
-                container.appendChild(createTextMessage(secondMessage));
-            } else {
-                console.warn("DB에 상세 추천 메시지가 없습니다.");
-                const warningMsg = { role: 'assistant', content: "오행 맞춤 추천 메시지를 가져올 수 없습니다." };
-                container.appendChild(createTextMessage(warningMsg));
-            }
-
-        } catch (err) {
-            console.error("초기 메시지 로드 오류:", err);
-            const errorMsg = { role: 'assistant', content: `[추가 로드 오류]: ${err.message}` };
-            container.appendChild(createTextMessage(errorMsg));
-        } finally {
             scrollToBottom(container);
         }
     }
@@ -833,7 +816,7 @@
                 const userMsg = { 
                     role: 'user', 
                     content: messageText, 
-                    sender_id: currentUserUid 
+                    senderId: currentUserUid 
                 };
                 chatArea.appendChild(createTextMessage(userMsg));
                 scrollToBottom(chatArea);
@@ -862,7 +845,7 @@
 
         // 사용자가 보낸 메시지 중 일반 메시지만 렌더링 (큐 처리 중이 아닐 떄만 화면에 표시)
         if (!isLocationMessage && !isProcessingQueue) {
-            const userMsg = { role: 'user', content: messageText, sender_id: currentUserUid};
+            const userMsg = { role: 'user', content: messageText, senderId: currentUserUid};
             chatArea.appendChild(createTextMessage(userMsg));
         }
 
@@ -1074,18 +1057,31 @@
 
         idToken = await user.getIdToken();
         currentUserUid = user.uid;
-        
-        const urlRoomId = getRoomIdFromUrl();
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlRoomId = urlParams.get('roomId');
+        const isNew = urlParams.get('isNew') === 'true'
 
         initializeKakaoPlaces();
+
+
         if (urlRoomId) {
             currentRoomId = urlRoomId;
-            isRoomReady = true; // 기존 방은 이미 준비된 상태
+
+            // 새로 생성된 방(isNew)인 경우에만 하드코딩 인사말을 보여줌
+            if (isNew) {
+                showHeadlineMessage();
+            } else {
+                chatArea.innerHTML = '<p class="text-center text-gray-500">메시지를 불러오는 중...</p>';
+            }
+
+            isRoomReady = true;
             messageQueue = []; 
             await loadMessages(urlRoomId, chatArea);
         } else {
             isRoomReady = false; // 새 채팅방은 준비되지 않은 상태
             messageQueue = [];
+            showHeadlineMessage();
             await createChatRoom(); 
         }
     });

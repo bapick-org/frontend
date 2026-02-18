@@ -46,19 +46,14 @@
     </style>
 </head>
 <body class="bg-gray-50">
-    <div id="custom-toast"
-        class="fixed top-20 left-1/2 transform -translate-x-1/2 px-6 py-3 bg-gray-800 text-white text-sm font-medium rounded-lg shadow-lg z-50 transition-opacity duration-300 opacity-0 pointer-events-none">
-        알림 메시지
-    </div>
-    <div id="overlay" class="fixed inset-0 bg-black bg-opacity-20 z-40 hidden transition-opacity duration-300"></div>
     <div class="h-full flex flex-col">
         <!-- header -->
         <header class="grid grid-cols-3 items-center p-4 border-b border-gray-200 flex-shrink-0 bg-white">
             <div></div>
             <h1 class="text-xl font-bold text-center text-gray-800">스크랩</h1>
+            <!-- 새 컬렉션을 생성하는 바텀시트 오픈 -->
             <div class="justify-self-end">
-                <button id="header-add-button"
-                        class="px-1 rounded-full text-gray-600 hover:bg-gray-100 focus:outline-none">
+                <button id="open-collection-sheet-btn" class="px-1 rounded-full text-gray-600 hover:bg-gray-100 focus:outline-none">
                     <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                         <line x1="12" y1="5" x2="12" y2="19"></line>
                         <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -67,29 +62,11 @@
             </div>
         </header>
 
-        <main id="main-content" class="flex-1 overflow-y-auto p-4"></main>
+        <main id="main-content" class="flex-1 overflow-y-auto p-4">
+            <p class="text-center text-gray-500 mt-4">스크랩 목록을 불러오는 중...</p>
+        </main>
     </div>
 
-    <!-- 새 컬렉션 생성 바텀시트 -->
-    <div id="collection-sheet"
-        class="fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-2xl shadow-xl transition-transform duration-300 ease-in-out transform translate-y-full">
-        <div class="p-5 pt-4">
-            <div class="w-12 h-1.5 bg-gray-300 rounded-full mx-auto mb-4"></div>
-            <h2 class="text-xl font-bold text-center text-gray-800 mb-6">새 컬렉션</h2>
-            <div class="space-y-4">
-                <div>
-                    <label for="collection-name" class="block text-sm font-medium text-gray-700 mb-1">컬렉션 이름</label>
-                    <input type="text" id="collection-name" placeholder="컬렉션 이름 입력"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF7A5A]">
-                </div>
-                <button id="create-collection-btn"
-                    class="w-full px-4 py-3 bg-[#FF7A5A] text-white font-semibold rounded-lg hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-400 transition-colors">
-                    만들기
-                </button>
-            </div>
-        </div>
-    </div>
-    
     <!-- 하단 메뉴바 -->
     <footer class="fixed bottom-0 left-0 right-0 z-30">
         <nav class="flex justify-around items-center h-16 bg-white rounded-t-2xl shadow-[0_-2px_10px_rgba(0,0,0,0.05)] max-w-screen-xl mx-auto">
@@ -139,7 +116,13 @@
         </svg>
     </button>
 
-    <!-- 하단 메뉴바 채팅 추가 팝업 -->
+    <!-- FAB (1:1 챗봇 채팅방으로 바로 이동)-->
+    <a href="chat.html" id="secondary-action-btn"
+        class="fixed bottom-20 right-6 w-16 h-16 bg-[#FFF6E2] hover:bg-orange-600 text-white rounded-full flex items-center justify-center shadow-lg transition-transform transform hover:scale-110 z-40"
+        style="background-image: url('/assets/images/logo-main.png'); background-size: 132%; background-repeat: no-repeat; background-position: center 0.5%;">
+    </a>
+
+        <!-- 하단 메뉴바 채팅 추가 팝업 -->
     <div id="add-chat-popup"
         class="absolute bottom-24 left-1/2 -translate-x-1/2 w-48 bg-white rounded-md shadow-xl z-50 popup-hidden">
         <div class="py-2">
@@ -174,41 +157,70 @@
             </a>
         </div>
     </div>
+    
+    <!-- 새 컬렉션 생성 바텀시트 -->
+    <div id="collection-sheet"
+        class="fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-2xl shadow-xl transition-transform duration-300 ease-in-out transform translate-y-full">
+        <div class="p-5 pt-4">
+            <div class="w-12 h-1.5 bg-gray-300 rounded-full mx-auto mb-4"></div>
+            <h2 class="text-xl font-bold text-center text-gray-800 mb-6">새 컬렉션</h2>
+            <div class="space-y-4">
+                <div>
+                    <label for="collection-name" class="block text-sm font-medium text-gray-700 mb-1">컬렉션 이름</label>
+                    <input type="text" id="collection-name" placeholder="컬렉션 이름 입력"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF7A5A]">
+                </div>
+                <button id="create-collection-btn"
+                    class="w-full px-4 py-3 bg-[#FF7A5A] text-white font-semibold rounded-lg hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-400 transition-colors">
+                    만들기
+                </button>
+            </div>
+        </div>
+    </div>
 
-    <!-- FAB (1:1 챗봇 채팅방으로 바로 이동)-->
-    <a href="chat.html" id="secondary-action-btn"
-        class="fixed bottom-20 right-6 w-16 h-16 bg-[#FFF6E2] hover:bg-orange-600 text-white rounded-full flex items-center justify-center shadow-lg transition-transform transform hover:scale-110 z-40"
-        style="background-image: url('/assets/images/logo-main.png'); background-size: 132%; background-repeat: no-repeat; background-position: center 0.5%;">
-    </a>
+    <!-- 모달 오버레이 -->
+    <div id="overlay" class="fixed inset-0 bg-black bg-opacity-20 z-40 hidden transition-opacity duration-300"></div>
+
+    <!-- 커스텀 토스트 -->
+    <div id="custom-toast"
+        class="fixed top-20 left-1/2 transform -translate-x-1/2 px-6 py-3 bg-gray-800 text-white text-sm font-medium rounded-lg shadow-lg z-50 transition-opacity duration-300 opacity-0 pointer-events-none">
+        알림 메시지
+    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
         import { firebaseConfig } from "./firebase-config.js";
 
+        // Firebase 초기화
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-
+        
+        // 상수
         const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-        const fastapiUrl = isLocal ? "http://127.0.0.1:8000" : "https://bapick.duckdns.org";
-
-        let currentUser = null;
+        const API_URL = isLocal ? "http://127.0.0.1:8000" : "https://bapick.duckdns.org";
         const NO_IMAGE_URL = '/assets/images/restaurant-default.png'; // 스크랩된 식당은 있으나 식당 이미지가 없을 때
         const EMPTY_COLLECTION_IMAGE = '/assets/images/empty-collection.png'; // 스크랩이 0개일 때 (컬렉션을 채워주세요)
+        const TOAST_DURATION = 2500; 
 
-        const headerAddButton = document.getElementById('header-add-button');
+        // State 변수
+        let isAppInitialized  = false; // 앱 초기화 여부 플래그
+
+        // DOM 요소
+        const openCollectionSheetBtn = document.getElementById('open-collection-sheet-btn');
         const collectionSheet = document.getElementById('collection-sheet');
-        const overlay = document.getElementById('overlay');
-        const createCollectionBtn = document.getElementById('create-collection-btn');
         const collectionNameInput = document.getElementById('collection-name');
+        const createCollectionBtn = document.getElementById('create-collection-btn');
+
         const mainContent = document.getElementById('main-content');
+
         const addChatBtn = document.getElementById('add-chat-btn');
         const addChatPopup = document.getElementById('add-chat-popup');
+        const overlay = document.getElementById('overlay');
 
-        // ✅ [추가] 커스텀 토스트 관련 변수 및 함수 정의
         const customToast = document.getElementById('custom-toast');
-        const toastDuration = 2500; 
 
+        /* UI 유틸 함수 */
         function showCustomToast(message) {
             customToast.textContent = message;
             customToast.classList.remove('opacity-0', 'pointer-events-none');
@@ -217,9 +229,8 @@
             setTimeout(() => {
                 customToast.classList.remove('opacity-100');
                 customToast.classList.add('opacity-0', 'pointer-events-none');
-            }, toastDuration);
+            }, TOAST_DURATION);
         }
-
 
         function closeAllPopups() {
             overlay.classList.add('hidden');
@@ -229,6 +240,7 @@
             addChatPopup.classList.add('popup-hidden');
         }
 
+        /* UI 상태 제어 함수 */
         function openCollectionSheet() {
             closeAllPopups();
             overlay.classList.remove('hidden'); 
@@ -241,82 +253,13 @@
             collectionNameInput.value = ''; 
         }
 
-        addChatBtn.addEventListener('click', (event) => {
-            event.stopPropagation();
-            const isAddChatOpen = addChatPopup.classList.contains('popup-visible');
-            closeAllPopups(); 
-            if (!isAddChatOpen) {
-                overlay.classList.remove('hidden');
-                addChatPopup.classList.remove('popup-hidden');
-                addChatPopup.classList.add('popup-visible');
-            }
-        });
-
-        // 모든 스크랩 정보 조회
-        async function fetchLatestScrapInfo(idToken) {
+        /* API 호출 */
+        // 컬렉션 목록 로드
+        async function fetchCollections(user) {
             try {
-                const response = await fetch(`${fastapiUrl}/api/scraps/me`, {
-                    method: 'GET',
-                    headers: { 'Authorization': `Bearer ${idToken}` }
-                });
+                const idToken = await user.getIdToken();
 
-                if (!response.ok) {
-                    throw new Error('전체 스크랩 정보 조회 실패');
-                }
-                
-                const scraps = await response.json();
-
-                if (scraps.length === 0) {
-                    return { has_scraps: false, image_url: null }; 
-                }
-
-                const latestScrap = scraps[0];
-                let latestImageUrl = null;
-                
-                if (latestScrap.image) {
-                    const images = latestScrap.image.split(',').map(url => url.trim()).filter(url => url);
-                    if (images.length > 0) {
-                        latestImageUrl = images[0]; 
-                    }
-                }
-                
-                if (latestImageUrl) {
-                    return { has_scraps: true, image_url: latestImageUrl };
-                } else {
-                    return { has_scraps: true, image_url: "" }; 
-                }
-
-            } catch (error) {
-                console.error('최신 스크랩 정보 로드 중 오류:', error);
-                return { has_scraps: false, image_url: null };
-            }
-        }
-
-
-        // 컬렉션 목록 로드 및 렌더링
-        async function fetchCollections() {
-            if (!currentUser) return;
-            const idToken = await currentUser.getIdToken();
-            
-            if (mainContent) {
-                mainContent.innerHTML = '<p class="text-center text-gray-500 mt-4">스크랩 목록을 불러오는 중...</p>'
-            }
-
-            try {
-                // 1. '모든 스크랩' 상태 정보 가져오기
-                const latestInfo = await fetchLatestScrapInfo(idToken); 
-
-                // 2. '모든 스크랩' 카드 객체 생성
-                const allScrapsCollection = {
-                    id: null, 
-                    name: '모든 스크랩',
-                    image_url: latestInfo.image_url, 
-                    created_at: new Date(),
-                    has_scraps: latestInfo.has_scraps 
-                };
-
-                // 3. 일반 컬렉션 목록 API 호출
-                const collectionsResponse = await fetch(`${fastapiUrl}/api/scraps/collections/me`, {
+                const collectionsResponse = await fetch(`${API_URL}/api/collections`, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${idToken}`,
@@ -330,91 +273,114 @@
                 }
                 
                 let collections = await collectionsResponse.json();
-                let collectionCards = [];
-                
-                // 4. '모든 스크랩' 카드를 목록의 가장 앞에 추가
-                collectionCards.push(createCollectionCard(allScrapsCollection, true)); 
-                
-                // 5. 일반 컬렉션 카드 추가
-                collections.forEach(collection => {
-                    collectionCards.push(createCollectionCard(collection, false)); 
+                return collections;                
+            } catch (error) {
+                if (isLocal) console.error("[Collections Load Error]:", error);
+                mainContent.innerHTML = `<p class="text-center text-red-500 mt-4">컬렉션 목록 조회 중 오류가 발생했습니다.</p>`;
+                return null;
+            }
+        }
+        
+        // 새 컬렉션 생성
+        async function createCollection(name, user) {
+            if (!user) return null;
+
+            try {
+                const idToken = await user.getIdToken();
+                const response = await fetch(`${API_URL}/api/collections`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${idToken}`
+                    },
+                    body: JSON.stringify({ name: name })
                 });
 
-                // 6. 렌더링
-                if (mainContent) {
-                    mainContent.innerHTML = '';
+                const result = await response.json();
 
-                    const collectionGrid = document.createElement('div');
-                    collectionGrid.id = 'collection-grid';
-                    collectionGrid.className = 'grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4';
-                    
-                    collectionCards.forEach(card => {
-                        collectionGrid.appendChild(card);
-                    });
-                    
-                    mainContent.appendChild(collectionGrid);
+                if (!response.ok) {
+                    throw new Error(result.message || result.detail || `컬렉션 생성에 실패했습니다.`);
                 }
-                
+            
+                return result;
             } catch (error) {
-                console.error('컬렉션 로드 중 오류:', error);
-                if (mainContent) {
-                    mainContent.innerHTML = `<p class="text-center text-red-500 mt-4">컬렉션 목록 로드 중 오류: ${error.message}</p>`;
-                }
+                if (isLocal) console.error("[Collection Create Error]:", error);
+                showCustomToast(`컬렉션 생성에 실패했습니다. 잠시 후 다시 시도해주세요.`);
             }
         }
 
-        // 단일 컬렉션 카드 생성
-        function createCollectionCard(collection, isAllScraps = false) {
-            let imageSource = '';
-            let useImageTag = false; 
 
-            const imageUrl = collection.image_url;
-            const isScrapsExist = collection.has_scraps; 
+        /* 렌더링 함수 */
+        // 모든 컬렉션 카드를 렌더링
+        function renderCollections(collections) {                
+            mainContent.innerHTML = '';
+            const fragment = document.createDocumentFragment();
             
-            // --- 이미지 처리 ---
-            // A. 스크랩 있고 이미지 있음 (image_url은 실제 URL)
-            if (imageUrl && imageUrl !== "") {
-                imageSource = imageUrl;
-                useImageTag = true;
-            
-            // B. 스크랩은 있으나 식당 이미지 없음
-            } else if (imageUrl === "" && isScrapsExist) { 
+            collections.forEach(collection => {
+                fragment.appendChild(createCollectionCard(collection));
+            });
+
+            const grid = document.createElement('div');
+            grid.id = 'collection-grid';
+            grid.className = 'grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4';
+            grid.appendChild(fragment);
+
+            mainContent.appendChild(grid);
+        }
+        
+        // 단일 컬렉션 카드 생성
+        function createCollectionCard(collection) {
+            // 대표 이미지 처리 로직
+            let imageSource;
+            if (collection.imageUrl) {
+                // 스크랩한 식당에 이미지가 있는 경우
+                imageSource = collection.imageUrl;
+            } else if (collection.hasScraps) {
+                // 스크랩한 식당에 이미지가 없는 경우 (기본 식당 이미지)
                 imageSource = NO_IMAGE_URL;
-                useImageTag = true;
-            
-            // C. 스크랩 없음 or 컬렉션 비어있음
-            } else { 
+            } else {
+                // 스크랩이 아예 없는 빈 컬렉션인 경우 (빈 폴더 이미지)
                 imageSource = EMPTY_COLLECTION_IMAGE;
-                useImageTag = true;
             }
 
-            const collectionId = collection.id;
+            // alt 텍스트
+            const altText = collection.hasScraps
+                ? `${collection.name} 컬렉션의 대표 이미지`
+                : `${collection.name} 컬렉션: 스크랩이 아직 없습니다`;
+
+            // 카드 div
             const card = document.createElement('div');
             card.className = 'bg-white rounded-xl shadow-md overflow-hidden cursor-pointer transition-transform transform hover:scale-105';
-            card.dataset.id = collectionId;
+            
+            // 이미지 영역
+            const imgWrapper = document.createElement('div');
+            imgWrapper.className = 'relative aspect-square';
+            
+            const img = document.createElement('img');
+            img.src = imageSource;
+            img.alt = altText;
+            img.className = 'absolute inset-0 w-full h-full object-cover';
+            
+            imgWrapper.appendChild(img);
+            
+            // 텍스트 영역
+            const textWrapper = document.createElement('div');
+            textWrapper.className = 'p-3';
 
-            // 하단 텍스트 영역
-            const textClass = isAllScraps ? 'text-[#FF7242] font-bold' : 'text-gray-800 font-bold';
+            const title = document.createElement('h3');
+            title.className = `${collection.isSystemDefault ? 'text-[#FF7242]' : 'text-gray-800'} text-base font-bold truncate`;
+            title.textContent = collection.name;
 
-            const textAreaContent = `
-                <div class="p-3"> 
-                    <h3 class="${textClass} text-base truncate">${collection.name}</h3>
-                </div>
-            `;
+            textWrapper.appendChild(title);
 
-            card.innerHTML = `
-                <div class="relative aspect-square">
-                    <img src="${imageSource}" alt="${collection.name} 대표 이미지" class="absolute inset-0 w-full h-full object-cover">
-                </div>
-                ${textAreaContent}
-            `;
+            // 최종 조립
+            card.appendChild(imgWrapper);
+            card.appendChild(textWrapper);
 
-            // 카드 클릭 시 이벤트
+            // 카드 클릭 이벤트
             card.addEventListener('click', () => {
-                const collectionId = collection.id; 
-                
-                if (collectionId) {
-                    window.location.href = `collection_list.html?id=${collectionId}`;
+                if (collection.id) {
+                    window.location.href = `collection_list.html?id=${collection.id}`;
                 } else {
                     window.location.href = `collection_list.html`;
                 }
@@ -424,72 +390,65 @@
         }
 
 
-        // 새 컬렉션 생성
-        async function createNewCollection(name) {
-            if (!currentUser) {
-                showCustomToast("로그인이 필요합니다.");
-                return null;
-            }
-
-            try {
-                const token = await currentUser.getIdToken();
-                const response = await fetch(`${fastapiUrl}/api/scraps/collections`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ name: name })
-                });
-
-                const result = await response.json();
-
-                if (!response.ok) {
-                    showCustomToast(`컬렉션 생성 실패: ${result.detail || '알 수 없는 오류'}`); 
-                    return null;
-                }
-                
-                return {
-                    id: result.id,
-                    name: result.name,
-                    image_url: result.image_url,
-                    has_scraps: FontFaceSetLoadEvent
-                };
-                
-            } catch (error) {
-                console.error('컬렉션 생성 실패:', error);
-                showCustomToast('컬렉션 생성에 실패했습니다. 서버 상태를 확인하세요.');
-                return null;
-            }
-        }
-
-        /* 이벤트 리스너 등록 */
-        headerAddButton.addEventListener('click', openCollectionSheet);
+        /* 이벤트 리스너 */
+        openCollectionSheetBtn.addEventListener('click', openCollectionSheet);
         overlay.addEventListener('click', closeAllPopups);
 
-        // 컬렉션 생성 바텀시트 내 '만들기' 버튼 클릭
-        createCollectionBtn.addEventListener('click', async () => {
-            const name = collectionNameInput.value.trim();
-            if (!name) {
-                showCustomToast('컬렉션 이름을 입력하세요.');
-                return;
-            }
-
-            const newCollection = await createNewCollection(name);
-
-            if (newCollection) {
-                fetchCollections(); 
-                closeCollectionSheet(); 
+        addChatBtn.addEventListener('click', (event) => {
+            event.stopPropagation();
+            const isAddChatOpen = addChatPopup.classList.contains('popup-visible');
+            closeAllPopups(); 
+            if (!isAddChatOpen) {
+                overlay.classList.remove('hidden');
+                addChatPopup.classList.remove('popup-hidden');
+                addChatPopup.classList.add('popup-visible');
             }
         });
 
-        // Firebase 인증 및 페이지 시작
-        onAuthStateChanged(auth, (user) => {
+        /* 앱 초기화 */
+        async function initApp(user) {
+            if (isAppInitialized) return; // 이미 초기화됐다면 중복 실행 방지
+            isAppInitialized = true;
+
+            // 1. 컬렉션 데이터 로드 및 렌더링
+            const collections = await fetchCollections(user);
+            if (collections) renderCollections(collections);
+
+            // 2. 컬렉션 '만들기' 버튼 리스너 등록
+            createCollectionBtn.onclick = async () => {
+                const name = collectionNameInput.value.trim();
+                if (!name) {
+                    showCustomToast('컬렉션 이름을 입력하세요.');
+                    return;
+                }
+
+                // 컬렉션 생성 중에는 버튼 비활성화
+                createCollectionBtn.disabled = true;
+                createCollectionBtn.textContent = '생성 중...';
+
+                // 새 컬렉션 생성
+                const newCollection = await createCollection(name, user);
+
+                if (newCollection) {
+                    // 컬렉션 생성 후 렌더링
+                    showCustomToast('컬렉션이 생성되었습니다.');
+                    const updatedCollections = await fetchCollections(user);
+                    if (updatedCollections) renderCollections(updatedCollections);
+                    closeCollectionSheet(); 
+                }
+
+                // 요청 완료 후 버튼 원상복귀
+                createCollectionBtn.disabled = false;
+                createCollectionBtn.textContent = '만들기';
+            };
+        }
+
+        onAuthStateChanged(auth, async (user) => {
             if (user) {
-                currentUser = user;
-                fetchCollections(); // 컬렉션 목록 불러오기
+                initApp(user); 
             } else {
-                window.location.href = 'index.html';
+                showCustomToast("로그인이 필요한 페이지입니다.");
+                setTimeout(() => { window.location.href = 'index.html'; }, 1000);
             }
         });
 </script>
