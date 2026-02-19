@@ -7,15 +7,15 @@
         },
         {
             "source": "/restaurant/detail/:id",
-            "destination": "/restaurant/detail.html"
+            "destination": "/restaurant/detail"
         },
         {
             "source": "/chat/room/:roomId",
-            "destination": "/chat/room.html"
+            "destination": "/chat/room"
         },
         {
             "source": "/scrap/collection/:id",
-            "destination": "/scrap/collection.html"
+            "destination": "/scrap/collection"
         }
     ]
 }
