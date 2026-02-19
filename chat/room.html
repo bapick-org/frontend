@@ -240,7 +240,7 @@
     const auth = getAuth(app);
 
     const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    const API_URL = isLocal ? "http://127.0.0.1:8000" : "https://bapick.duckdns.org";
+    const API_URL = isLocal ? "http://127.0.0.1:8000" : "";
 
     // JSON 응답 
     marked.setOptions({ breaks: true, gfm: true});
@@ -582,11 +582,15 @@
         
         try {
             const response = await fetch('/api/ws-config');
+
+            if (!response.ok) {
+                throw new Error('WebSocket 설정 조회 실패');
+            }
+        
             const config = await response.json();
             WS_URL = config.wsUrl;
         } catch (error) {
-            console.error('Failed to load WebSocket config, using fallback');
-            WS_URL = 'wss://bapick.duckdns.org';
+            console.error('Failed to load WebSocket config:', error);
         }
     }
 

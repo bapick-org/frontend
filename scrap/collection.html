@@ -95,7 +95,7 @@
         const auth = getAuth(app);
 
         const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-        const API_URL = isLocal ? "http://127.0.0.1:8000" : "https://bapick.duckdns.org";
+        const API_URL = isLocal ? "http://127.0.0.1:8000" : "";
 
         let currentCollectionName = null;
         let isAppInitialized  = false; // 앱 초기화 여부 플래그

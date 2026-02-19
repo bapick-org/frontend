@@ -86,7 +86,7 @@
         const db = getFirestore(app);
 
         const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-        const fastapiUrl = isLocal ? "http://127.0.0.1:8000" : "https://bapick.duckdns.org";
+        const fastapiUrl = isLocal ? "http://127.0.0.1:8000" : "";
 
 
         const cameraToggle = document.getElementById('camera-permission-toggle');

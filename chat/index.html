@@ -244,7 +244,7 @@
         const auth = getAuth(app);
         
         const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-        const API_URL = isLocal ? "http://127.0.0.1:8000" : "https://bapick.duckdns.org";
+        const API_URL = isLocal ? "http://127.0.0.1:8000" : "";
 
         // UI 요소
         const overlay = document.getElementById('overlay');
