@@ -70,7 +70,7 @@
     <!-- 하단 메뉴바 -->
     <footer class="fixed bottom-0 left-0 right-0 z-30">
         <nav class="flex justify-around items-center h-16 bg-white rounded-t-2xl shadow-[0_-2px_10px_rgba(0,0,0,0.05)] max-w-screen-xl mx-auto">
-            <a href="home.html"
+            <a href="/home"
                 class="flex flex-col items-center justify-center w-1/5 h-full text-gray-500 hover:text-[#FF7242] text-xs">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                     <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
@@ -78,7 +78,7 @@
                 </svg>
                 <span class="mt-1">홈</span>
             </a>
-            <a href="calender.html"
+            <a href="/calender/index"
                 class="flex flex-col items-center justify-center w-1/5 h-full text-gray-500 hover:text-[#FF7242] text-xs">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                     <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
@@ -96,7 +96,7 @@
                 </svg>
                 <span class="font-bold mt-1">스크랩</span>
             </a>
-            <a href="mypage.index.html"
+            <a href="/mypage/index"
                 class="flex flex-col items-center justify-center w-1/5 h-full text-gray-500 hover:text-[#FF7242] text-xs">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
@@ -107,26 +107,28 @@
         </nav>
     </footer>
 
-    <!-- 하단 메뉴바의 채팅 추가 버튼 -->
+    <!-- FAB 버튼 (1:1 채팅방으로 이동) -->
+    <a href="/chat/room" id="secondary-action-btn"
+        class="fixed bottom-20 right-6 w-16 h-16 bg-[#FFF6E2] hover:bg-orange-600 text-white rounded-full flex items-center justify-center shadow-lg transition-transform transform hover:scale-110 z-30"
+        style="background-image: url('/assets/images/logo-main.png'); background-size: 132%; background-repeat: no-repeat; background-position: center 0.5%;">
+    </a>
+
+    <!-- 하단 메뉴바의 + 버튼 -->
     <button id="add-chat-btn"
-        class="fixed bottom-6 left-1/2 -translate-x-1/2 w-16 h-16 bg-[#FF7242] hover:bg-orange-600 text-white rounded-full flex items-center justify-center shadow-lg z-40">
+        class="fixed bottom-6 left-1/2 -translate-x-1/2 w-16 h-16 bg-[#FF7242] hover:bg-orange-600 text-white rounded-full flex items-center justify-center shadow-lg transition-transform transform hover:scale-110 z-40">
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <line x1="12" y1="5" x2="12" y2="19"></line>
             <line x1="5" y1="12" x2="19" y2="12"></line>
         </svg>
     </button>
 
-    <!-- FAB (1:1 챗봇 채팅방으로 바로 이동)-->
-    <a href="chat.html" id="secondary-action-btn"
-        class="fixed bottom-20 right-6 w-16 h-16 bg-[#FFF6E2] hover:bg-orange-600 text-white rounded-full flex items-center justify-center shadow-lg transition-transform transform hover:scale-110 z-40"
-        style="background-image: url('/assets/images/logo-main.png'); background-size: 132%; background-repeat: no-repeat; background-position: center 0.5%;">
-    </a>
+    <!-- 모달 오버레이 -->
+    <div id="overlay" class="fixed inset-0 bg-black bg-opacity-20 z-40 hidden transition-opacity duration-300"></div>
 
-        <!-- 하단 메뉴바 채팅 추가 팝업 -->
-    <div id="add-chat-popup"
-        class="absolute bottom-24 left-1/2 -translate-x-1/2 w-48 bg-white rounded-md shadow-xl z-50 popup-hidden">
+    <!-- + 버튼 클릭 시 팝업-->
+    <div id="add-chat-popup" class="fixed bottom-24 left-1/2 -translate-x-1/2 w-48 bg-white rounded-md shadow-xl z-50 popup-hidden">
         <div class="py-2">
-            <a href="chat_list.html" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+            <a href="/chat/index" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                     stroke-linecap="round" stroke-linejoin="round">
                     <line x1="8" y1="6" x2="21" y2="6"></line>
@@ -138,14 +140,14 @@
                 </svg>
                 채팅 목록
             </a>
-            <a href="chat.html" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+            <a href="/chat/room" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
                     <circle cx="9" cy="7" r="4" />
                 </svg>
                 1:1 채팅방
             </a>
-            <a href="chat_group.html" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+            <a href="/chat/create-group" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M12 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
                     <path d="M18 21v-2a4 4 0 0 0-4-4h-1" />
@@ -157,7 +159,7 @@
             </a>
         </div>
     </div>
-    
+
     <!-- 새 컬렉션 생성 바텀시트 -->
     <div id="collection-sheet"
         class="fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-2xl shadow-xl transition-transform duration-300 ease-in-out transform translate-y-full">
@@ -178,19 +180,16 @@
         </div>
     </div>
 
-    <!-- 모달 오버레이 -->
-    <div id="overlay" class="fixed inset-0 bg-black bg-opacity-20 z-40 hidden transition-opacity duration-300"></div>
-
     <!-- 커스텀 토스트 -->
     <div id="custom-toast"
-        class="fixed top-20 left-1/2 transform -translate-x-1/2 px-6 py-3 bg-gray-800 text-white text-sm font-medium rounded-lg shadow-lg z-50 transition-opacity duration-300 opacity-0 pointer-events-none">
+        class="fixed top-20 left-1/2 transform -translate-x-1/2 px-6 py-3 bg-gray-800 text-white text-sm font-medium rounded-lg shadow-lg z-[70] transition-opacity duration-300 opacity-0 pointer-events-none">
         알림 메시지
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
-        import { firebaseConfig } from "./firebase-config.js";
+        import { firebaseConfig } from "/firebase-config.js";
 
         // Firebase 초기화
         const app = initializeApp(firebaseConfig);
@@ -255,7 +254,7 @@
 
         /* API 호출 */
         // 컬렉션 목록 로드
-        async function fetchCollections(user) {
+        async function getCollections(user) {
             try {
                 const idToken = await user.getIdToken();
 
@@ -380,9 +379,9 @@
             // 카드 클릭 이벤트
             card.addEventListener('click', () => {
                 if (collection.id) {
-                    window.location.href = `collection_list.html?id=${collection.id}`;
+                    window.location.href = `/scrap/collection/${collection.id}`;
                 } else {
-                    window.location.href = `collection_list.html`;
+                    window.location.href = `/scrap/collection`;
                 }
             });
 
@@ -411,7 +410,7 @@
             isAppInitialized = true;
 
             // 1. 컬렉션 데이터 로드 및 렌더링
-            const collections = await fetchCollections(user);
+            const collections = await getCollections(user);
             if (collections) renderCollections(collections);
 
             // 2. 컬렉션 '만들기' 버튼 리스너 등록
@@ -432,7 +431,7 @@
                 if (newCollection) {
                     // 컬렉션 생성 후 렌더링
                     showCustomToast('컬렉션이 생성되었습니다.');
-                    const updatedCollections = await fetchCollections(user);
+                    const updatedCollections = await getCollections(user);
                     if (updatedCollections) renderCollections(updatedCollections);
                     closeCollectionSheet(); 
                 }
@@ -448,7 +447,7 @@
                 initApp(user); 
             } else {
                 showCustomToast("로그인이 필요한 페이지입니다.");
-                setTimeout(() => { window.location.href = 'index.html'; }, 1000);
+                setTimeout(() => { window.location.href = '/index'; }, 1000);
             }
         });
 </script>

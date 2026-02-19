@@ -4,6 +4,18 @@
         {
             "source": "/api/:path*",
             "destination": "/api/[...path].js"
+        },
+        {
+            "source": "/restaurant/detail/:id",
+            "destination": "/restaurant/detail.html"
+        },
+        {
+            "source": "/chat/room/:roomId",
+            "destination": "/chat/room.html"
+        },
+        {
+            "source": "/scrap/collection/:id",
+            "destination": "/scrap/collection.html"
         }
     ]
 }

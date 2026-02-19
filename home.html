@@ -98,7 +98,7 @@
         <div class="max-w-screen-xl mx-auto w-full relative">
             <input type="text" id="location-text"
                 class="w-full pl-5 pr-16 py-3 bg-white/80 backdrop-blur-sm border-none rounded-full shadow-lg focus:ring-2 focus:ring-[#FF7242] focus:outline-none text-gray-800 placeholder-gray-400">
-            <a href="set_location.html"
+            <a href="/settings/location"
                 class="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-[#FF7242] hover:bg-orange-600 text-white rounded-full flex items-center justify-center shadow-md transition-transform transform hover:scale-110">
                 <span class="material-symbols-outlined">location_on</span>
             </a>
@@ -227,7 +227,7 @@
                 <h3 id="nearby-restaurants-heading" class="text-xl lg:text-2xl font-bold text-gray-800">
                     나의 근처 맛집
                 </h3>
-                <a href="restaurant_list.html" class="text-base font-semibold text-gray-500 hover:text-[#FF7242]">
+                <a href="/restaurant/list" class="text-base font-semibold text-gray-500 hover:text-[#FF7242]">
                     전체보기 &gt;
                 </a>
             </div>
@@ -254,7 +254,7 @@
                 </svg>
                 <span class="font-bold mt-1">홈</span>
             </a>
-            <a href="calender.html"
+            <a href="/calender/index"
                 class="flex flex-col items-center justify-center w-1/5 h-full text-gray-500 hover:text-[#FF7242] text-xs">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                     <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
@@ -265,14 +265,14 @@
                 <span class="mt-1">캘린더</span>
             </a>
             <div class="w-1/5"></div>
-            <a href="scrap.index.html"
+            <a href="/scrap/index"
                 class="flex flex-col items-center justify-center w-1/5 h-full text-gray-500 hover:text-[#FF7242] text-xs">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                     <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
                 </svg>
                 <span class="mt-1">스크랩</span>
             </a>
-            <a href="mypage.index.html"
+            <a href="/mypage/index"
                 class="flex flex-col items-center justify-center w-1/5 h-full text-gray-500 hover:text-[#FF7242] text-xs">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
@@ -283,7 +283,13 @@
         </nav>
     </footer>
 
-    <!-- + 버튼 -->
+    <!-- FAB 버튼 (1:1 채팅방으로 이동) -->
+    <a href="/chat/room" id="secondary-action-btn"
+        class="fixed bottom-20 right-6 w-16 h-16 bg-[#FFF6E2] hover:bg-orange-600 text-white rounded-full flex items-center justify-center shadow-lg transition-transform transform hover:scale-110 z-30"
+        style="background-image: url('/assets/images/logo-main.png'); background-size: 132%; background-repeat: no-repeat; background-position: center 0.5%;">
+    </a>
+
+    <!-- 하단 메뉴바의 + 버튼 -->
     <button id="add-chat-btn"
         class="fixed bottom-6 left-1/2 -translate-x-1/2 w-16 h-16 bg-[#FF7242] hover:bg-orange-600 text-white rounded-full flex items-center justify-center shadow-lg transition-transform transform hover:scale-110 z-40">
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -292,11 +298,13 @@
         </svg>
     </button>
 
-    <!-- + 버튼 팝업-->
-    <div id="add-chat-popup"
-        class="absolute bottom-24 left-1/2 -translate-x-1/2 w-48 bg-white rounded-md shadow-xl z-50 popup-hidden">
+    <!-- 오버레이 -->
+    <div id="overlay" class="fixed inset-0 bg-black bg-opacity-30 z-40 hidden"></div>
+
+    <!-- + 버튼 클릭 시 팝업-->
+    <div id="add-chat-popup" class="fixed bottom-24 left-1/2 -translate-x-1/2 w-48 bg-white rounded-md shadow-xl z-50 popup-hidden">
         <div class="py-2">
-            <a href="chat_list.html" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+            <a href="/chat/index" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                     stroke-linecap="round" stroke-linejoin="round">
                     <line x1="8" y1="6" x2="21" y2="6"></line>
@@ -308,14 +316,14 @@
                 </svg>
                 채팅 목록
             </a>
-            <a href="chat.html" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+            <a href="/chat/room" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
                     <circle cx="9" cy="7" r="4" />
                 </svg>
                 1:1 채팅방
             </a>
-            <a href="chat_group.html" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+            <a href="/chat/create-group" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M12 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
                     <path d="M18 21v-2a4 4 0 0 0-4-4h-1" />
@@ -328,18 +336,10 @@
         </div>
     </div>
 
-    <!-- FAB 버튼-->
-    <a href="chat.html" id="secondary-action-btn"
-        class="fixed bottom-20 right-6 w-16 h-16 bg-[#FFF6E2] hover:bg-orange-600 text-white rounded-full flex items-center justify-center shadow-lg transition-transform transform hover:scale-110 z-40"
-        style="background-image: url('/assets/images/logo-main.png'); background-size: 132%; background-repeat: no-repeat; background-position: center 0.5%;">
-    </a>
-
-    <div id="overlay" class="fixed inset-0 bg-black bg-opacity-30 z-40 hidden"></div>
-
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
-        import { firebaseConfig } from "./firebase-config.js";
+        import { firebaseConfig } from "/firebase-config.js";
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
@@ -481,7 +481,7 @@
 
 
             return `
-                <a href="detail.html?id=${restaurant.id}" class="w-80 h-44 flex-shrink-0 flex bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden">
+                <a href="/restaurant/detail/${restaurant.id}" class="w-80 h-44 flex-shrink-0 flex bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden">
                     
                     <div class="flex-shrink-0 w-32 h-full rounded-lg overflow-hidden"> 
                         <img class="w-full h-full object-cover" src="${imageUrl}" alt="${restaurant.name}">
@@ -679,7 +679,7 @@
             if (user) {
                 initHomePage(user); // 로그인 시 홈 초기화 시작
             } else {
-                window.location.href = 'index.html';
+                window.location.href = '/index';
             }
         });
 

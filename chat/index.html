@@ -79,177 +79,165 @@
 </head>
 
 <body>
-
     <div class="w-full h-full bg-white flex flex-col">
-        <div id="chat-list-screen" class="h-full flex flex-col relative">
+        <header class="h-16 bg-white border-b border-gray-200 flex-shrink-0">
+            <div id="header-main" class="grid grid-cols-3 items-center h-full px-4">
+                <div></div>
+                <h1 class="text-xl font-bold text-gray-800 text-center">채팅</h1>
 
-            <header class="h-16 bg-white border-b border-gray-200 flex-shrink-0">
-                <div id="header-main" class="grid grid-cols-3 items-center h-full px-4">
-                    <div></div>
-                    <h1 class="text-xl font-bold text-gray-800 text-center">채팅</h1>
-                    <div class="flex items-center space-x-3 justify-self-end">
-                        <button id="add-friend-btn" class="text-gray-500 hover:text-gray-800">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2">
-                                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
-                                <circle cx="9" cy="7" r="4"></circle>
-                                <line x1="19" y1="8" x2="19" y2="14"></line>
-                                <line x1="22" y1="11" x2="16" y2="11"></line>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-            </header>
-
-            <div class="flex border-b border-gray-200 bg-white flex-shrink-0">
-                <button id="tab-private" class="flex-1 py-3 text-center tab-active">
-                    1:1 채팅
-                </button>
-                <button id="tab-group" class="flex-1 py-3 text-center tab-inactive">
-                    단체 채팅
-                </button>
-            </div>
-
-            <main id="main-content" class="flex-1 overflow-y-auto bg-gray-50">
-                <div id="chat-list-private">
-                    <ul class="space-y-3 p-4 bg-white">
-                    </ul>
-                </div>
-                <div id="chat-list-group" class="hidden">
-                    <ul class="space-y-3 p-4 bg-white">
-                    </ul>
-                </div>
-            </main>
-    </div>
-                <footer class="fixed bottom-0 left-0 right-0 z-30">
-                <nav class="flex justify-around items-center h-16 bg-white rounded-t-2xl shadow-[0_-2px_10px_rgba(0,0,0,0.05)] max-w-screen-xl mx-auto">
-                    <a href="home.html"
-                        class="flex flex-col items-center justify-center w-1/5 h-full text-gray-500 hover:text-[#FF7242] text-xs">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="1.5">
-                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                <div class="flex items-center space-x-3 justify-self-end">
+                    <button id="add-friend-btn" class="text-gray-500 hover:text-gray-800">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <line x1="19" y1="8" x2="19" y2="14"></line>
+                            <line x1="22" y1="11" x2="16" y2="11"></line>
                         </svg>
-                        <span class="mt-1">홈</span>
-                    </a>
-                    <a href="calender.html"
-                        class="flex flex-col items-center justify-center w-1/5 h-full text-gray-500 hover:text-[#FF7242] text-xs">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="1.5">
-                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                            <line x1="16" y1="2" x2="16" y2="6"></line>
-                            <line x1="8" y1="2" x2="8" y2="6"></line>
-                            <line x1="3" y1="10" x2="21" y2="10"></line>
-                        </svg>
-                        <span class="mt-1">캘린더</span>
-                    </a>
-                    <div class="w-1/5"></div> <a href="scrap.index.html"
-                        class="flex flex-col items-center justify-center w-1/5 h-full text-gray-500 hover:text-[#FF7242] text-xs">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="1.5">
-                            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
-                        </svg>
-                        <span class="mt-1">스크랩</span>
-                    </a>
-                    <a href="mypage.index.html"
-                        class="flex flex-col items-center justify-center w-1/5 h-full text-gray-500 hover:text-[#FF7242] text-xs">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="1.5">
-                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                            <circle cx="12" cy="7" r="4"></circle>
-                        </svg>
-                        <span class="mt-1">마이</span>
-                    </a>
-                </nav>
-            </footer>
-
-            <button id="add-chat-btn"
-                class="fixed bottom-6 left-1/2 -translate-x-1/2 w-16 h-16 bg-[#FF7242] hover:bg-orange-600 text-white rounded-full flex items-center justify-center shadow-lg z-40">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                    <line x1="12" y1="5" x2="12" y2="19"></line>
-                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                </svg>
-            </button>
-
-            <div id="add-chat-popup"
-                class="absolute bottom-24 left-1/2 -translate-x-1/2 w-48 bg-white rounded-md shadow-xl z-50 popup-hidden">
-                <div class="py-2">
-                    <a href="chat_list.html"
-                        class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="8" y1="6" x2="21" y2="6"></line>
-                            <line x1="8" y1="12" x2="21" y2="12"></line>
-                            <line x1="8" y1="18" x2="21" y2="18"></line>
-                            <line x1="3" y1="6" x2="3.01" y2="6"></line>
-                            <line x1="3" y1="12" x2="3.01" y2="12"></line>
-                            <line x1="3" y1="18" x2="3.01" y2="18"></line>
-                        </svg>
-                        채팅 목록
-                    </a>
-                    <a href="chat.html" id="start-private-chat-btn"
-                        class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2">
-                            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                            <circle cx="9" cy="7" r="4" />
-                        </svg>
-                        1:1 채팅방
-                    </a>
-                    <a href="chat_group.html"
-                        class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2">
-                            <path d="M12 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                            <path d="M18 21v-2a4 4 0 0 0-4-4h-1" />
-                            <circle cx="9" cy="7" r="4" />
-                            <path d="M18 7h3a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1h-3" />
-                            <path d="m15.5 13.5-3-3 3-3" />
-                        </svg>
-                        단체 채팅방
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <div id="overlay" class="fixed inset-0 bg-black bg-opacity-20 z-40 hidden transition-opacity"></div>
-
-        <div id="add-friend-modal" class="fixed inset-0 bg-black bg-opacity-40 z-50 hidden items-center justify-center p-4">
-            <div class="bg-white rounded-lg shadow-xl w-full max-w-sm">
-
-                <div class="p-6">
-                    <h3 class="text-xl font-semibold text-gray-800 mb-2">친구 추가</h3>
-                    <p class="text-gray-500 mb-4">추가할 친구의 닉네임을 검색하세요.</p>
-                    <div class="relative">
-                        <input id="friend-nickname-input" type="text" placeholder="친구 닉네임" class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-400">
-                    </div>
-                    <div id="profile-list-container" class="mt-4 hidden space-y-2 max-h-48 overflow-y-auto">
-                    </div>
-                </div>
-
-                <hr class="border-gray-200">
-                <div class="p-6">
-                    <h4 class="text-lg font-semibold text-gray-800 mb-3">받은 친구 요청</h4>
-                    <div id="friend-request-list" class="space-y-3 max-h-48 overflow-y-auto">
-                        <p id="no-requests-text" class="text-sm text-gray-500 hidden py-2">
-                            받은 친구 요청이 없습니다.
-                        </p>
-                    </div>
-                </div>
-
-                <div class="bg-gray-50 px-6 py-3 flex justify-end rounded-b-lg">
-                    <button id="cancel-add-friend-btn" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 font-medium">
-                        닫기
                     </button>
                 </div>
             </div>
+        </header>
+
+        <div class="flex border-b border-gray-200 bg-white flex-shrink-0">
+            <button id="tab-private" class="flex-1 py-3 text-center tab-active">
+                1:1 채팅
+            </button>
+            <button id="tab-group" class="flex-1 py-3 text-center tab-inactive">
+                단체 채팅
+            </button>
         </div>
+
+        <main id="main-content" class="flex-1 overflow-y-auto bg-gray-50">
+            <div id="chat-list-private">
+                <ul class="space-y-3 p-4 bg-white"></ul>
+            </div>
+            <div id="chat-list-group" class="hidden">
+                <ul class="space-y-3 p-4 bg-white"></ul>
+            </div>
+        </main>
+    </div>
+
+    <footer class="fixed bottom-0 left-0 right-0 z-30">
+        <nav class="flex justify-around items-center h-16 bg-white rounded-t-2xl shadow-[0_-2px_10px_rgba(0,0,0,0.05)] max-w-screen-xl mx-auto">
+            <a href="/home"
+                class="flex flex-col items-center justify-center w-1/5 h-full text-gray-500 hover:text-[#FF7242] text-xs">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+                <span class="mt-1">홈</span>
+            </a>
+            <a href="/calender/index"
+                class="flex flex-col items-center justify-center w-1/5 h-full text-gray-500 hover:text-[#FF7242] text-xs">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                <span class="mt-1">캘린더</span>
+            </a>
+            <div class="w-1/5"></div>
+            <a href="/scrap/index"
+                class="flex flex-col items-center justify-center w-1/5 h-full text-gray-500 hover:text-[#FF7242] text-xs">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                </svg>
+                <span class="mt-1">스크랩</span>
+            </a>
+            <a href="/mypage/index"
+                class="flex flex-col items-center justify-center w-1/5 h-full text-gray-500 hover:text-[#FF7242] text-xs">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                <span class="mt-1">마이</span>
+            </a>
+        </nav>
+    </footer>
+
+    <button id="add-chat-btn"
+        class="fixed bottom-6 left-1/2 -translate-x-1/2 w-16 h-16 bg-[#FF7242] hover:bg-orange-600 text-white rounded-full flex items-center justify-center shadow-lg z-40">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+    </button>
+
+    <div id="overlay" class="fixed inset-0 bg-black bg-opacity-20 z-40 hidden transition-opacity"></div>
+
+    <div id="add-chat-popup"
+        class="absolute bottom-24 left-1/2 -translate-x-1/2 w-48 bg-white rounded-md shadow-xl z-50 popup-hidden">
+        <div class="py-2">
+            <a href="/chat/index" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="8" y1="6" x2="21" y2="6"></line>
+                    <line x1="8" y1="12" x2="21" y2="12"></line>
+                    <line x1="8" y1="18" x2="21" y2="18"></line>
+                    <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                    <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                    <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                </svg>
+                채팅 목록
+            </a>
+            <a href="/chat/room" id="start-private-chat-btn"
+                class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                    <circle cx="9" cy="7" r="4" />
+                </svg>
+                1:1 채팅방
+            </a>
+            <a href="/chat/create-group" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                    <path d="M18 21v-2a4 4 0 0 0-4-4h-1" />
+                    <circle cx="9" cy="7" r="4" />
+                    <path d="M18 7h3a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1h-3" />
+                    <path d="m15.5 13.5-3-3 3-3" />
+                </svg>
+                단체 채팅방
+            </a>
+            </div>
+        </div>
+    </div>
+
+        
+    <div id="add-friend-modal" class="fixed inset-0 bg-black bg-opacity-40 z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-sm">
+
+        <div class="p-6">
+            <h3 class="text-xl font-semibold text-gray-800 mb-2">친구 추가</h3>
+            <p class="text-gray-500 mb-4">추가할 친구의 닉네임을 검색하세요.</p>
+            <div class="relative">
+                <input id="friend-nickname-input" type="text" placeholder="친구 닉네임" 
+                    class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-400">
+            </div>
+            <div id="profile-list-container" class="mt-4 hidden space-y-2 max-h-48 overflow-y-auto">
+            </div>
+        </div>
+        <hr class="border-gray-200">
+        <div class="p-6">
+            <h4 class="text-lg font-semibold text-gray-800 mb-3">받은 친구 요청</h4>
+            <div id="friend-request-list" class="space-y-3 max-h-48 overflow-y-auto">
+                <p id="no-requests-text" class="text-sm text-gray-500 hidden py-2">
+                    받은 친구 요청이 없습니다.
+                </p>
+            </div>
+        </div>
+
+        <div class="bg-gray-50 px-6 py-3 flex justify-end rounded-b-lg">
+            <button id="cancel-add-friend-btn" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 font-medium">
+                닫기
+            </button>
+        </div>
+    </div>
 
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
-        import { firebaseConfig } from "./firebase-config.js";
+        import { firebaseConfig } from "/firebase-config.js";
 
         // Firebase 앱 초기화
         const app = initializeApp(firebaseConfig);
@@ -718,7 +706,7 @@
 
 
             content.innerHTML = `
-                <a href="chat.html?roomId=${chat.id}" class="flex items-center p-4 hover:bg-gray-100 transition-colors border-b border-gray-100">
+                <a href="/chat/room/${chat.id}" class="flex items-center p-4 hover:bg-gray-100 transition-colors border-b border-gray-100">
                     ${profileIconHtml}
                     <div class="ml-4 flex-1 overflow-hidden">
                         ${nameAndDetailHtml}
@@ -916,7 +904,7 @@
                 loadChatList(false); // 로그인 후 기본 탭 (1:1 채팅) 로드
             } else {
                 alert('로그인이 필요합니다.');
-                window.location.href = 'index.html'; // 로그인 페이지로 이동
+                window.location.href = '/index'; // 로그인 페이지로 이동
                 return;
             }
         });

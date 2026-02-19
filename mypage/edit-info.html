@@ -61,15 +61,10 @@
 </head>
 <body class="bg-white">
 
-    <div id="custom-toast"
-        class="fixed top-5 left-1/2 transform -translate-x-1/2 px-6 py-3 bg-gray-800 text-white text-sm font-medium rounded-lg shadow-lg z-50 transition-opacity duration-300 opacity-0 pointer-events-none">
-        알림 메시지
-    </div>
-    
     <div class="h-full flex flex-col">
         
         <header class="grid grid-cols-3 items-center px-2 py-4 border-b border-gray-200 flex-shrink-0">
-            <a href="mypage.index.html" class="text-gray-600 hover:text-gray-900">
+            <a href="/mypage/index" class="text-gray-600 hover:text-gray-900">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 19l-7-7 7-7"/></svg>
             </a>
             <h1 class="text-xl font-bold text-center text-gray-800 col-span-1 whitespace-nowrap">회원정보 수정</h1>
@@ -119,23 +114,6 @@
                         </div>
                     </fieldset>
                 </div>
-                
-                <div>
-                    <fieldset>
-                        <legend class="block text-sm font-medium text-gray-700 mb-3">성별</legend>
-                        
-                        <div class="flex items-center space-x-6">
-                            <label class="flex items-center cursor-pointer">
-                                <input type="radio" name="gender" value="male" class="w-5 h-5 mr-2 border-gray-300 text-[#FF7A5A] focus:ring-[#FF7A5A]">
-                                <span class="text-gray-700">남자</span>
-                            </label>
-                            <label class="flex items-center cursor-pointer">
-                                <input type="radio" name="gender" value="female" class="w-5 h-5 mr-2 border-gray-300 text-[#FF7A5A] focus:ring-[#FF7A5A]">
-                                <span class="text-gray-700">여자</span>
-                            </label>
-                        </div>
-                    </fieldset>
-                </div>
             </form>
         </main>
 
@@ -146,10 +124,15 @@
         </footer>
     </div>
 
+    <div id="custom-toast"
+        class="fixed top-5 left-1/2 transform -translate-x-1/2 px-6 py-3 bg-gray-800 text-white text-sm font-medium rounded-lg shadow-lg z-[70] transition-opacity duration-300 opacity-0 pointer-events-none">
+        알림 메시지
+    </div>
+    
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
-        import { firebaseConfig } from "./firebase-config.js"; 
+        import { firebaseConfig } from "/firebase-config.js"; 
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
@@ -215,11 +198,6 @@
                     document.getElementById('unknown-time').checked = true;
                 }
                 toggleTimeInputState(); // 시간 모름 체크박스의 상태에 따른 input 활성화/비활성화 처리
-                
-                // 3. 성별
-                const genderValue = data.gender.toLowerCase();
-                const genderRadio = document.querySelector(`input[name="gender"][value="${genderValue}"]`);
-                if (genderRadio) genderRadio.checked = true;
             } catch (err) {
                 if (isLocal) console.error("[UserProfile Load Error]:", err);
                 showCustomToast("사용자 정보 조회 중 오류가 발생했습니다.");
@@ -242,7 +220,6 @@
                 const patchBody = {
                     birthCalendar: document.getElementById('birth_calendar').value,
                     birthDate: document.getElementById('birthdate-input').value,
-                    gender: document.querySelector('input[name="gender"]:checked').value,
                     timeUnknown: document.getElementById('unknown-time').checked
                 };
                 
@@ -281,7 +258,7 @@
                 await loadUserInfo(currentUser); 
             } catch (err) {
                 if (isLocal) console.error("[User Data Load Error]:", err);
-                showCustomToast("정보 수정 중 오류가 발생했습니다.");
+                showCustomToast(err.message || "정보 수정 중 오류가 발생했습니다.");
             } finally {
                 saveBtn.disabled = false;
                 saveBtn.textContent = '저장';
@@ -362,7 +339,7 @@
             } else {
                 showCustomToast("로그인이 필요한 페이지입니다. 로그인 페이지로 이동합니다.");
                 setTimeout(() => {
-                    window.location.href = 'index.html';
+                    window.location.href = '/index';
                 }, 1000);
             }
         });

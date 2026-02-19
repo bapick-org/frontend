@@ -138,7 +138,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
-        import { firebaseConfig } from "./firebase-config.js"; 
+        import { firebaseConfig } from "/firebase-config.js"; 
 
         // Firebase 앱 초기화
         const app = initializeApp(firebaseConfig);
@@ -545,7 +545,7 @@
                 const locationHeader = res.headers.get('Location');
                 const roomId = locationHeader ? locationHeader.split('/').pop() : data.id;
 
-                window.location.href = `chat.html?roomId=${roomId}&isNew=true`;
+                window.location.href = `/chat/room/${roomId}?isNew=true`;
 
             } catch (err) {
                 if (isLocal) console.error('[채팅방 생성 오류]:', err);
@@ -568,7 +568,7 @@
                 await getFriendList();
             } else {
                 alert('로그인이 필요합니다.');
-                window.location.href = 'index.html'; // 로그인 페이지로 이동
+                window.location.href = '/index'; // 로그인 페이지로 이동
                 return;
             }
         });

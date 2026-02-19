@@ -27,7 +27,7 @@
 <body class="bg-white">    
     <div class="h-full flex flex-col">
         <header class="grid grid-cols-3 items-center p-4 border-b border-gray-200 flex-shrink-0">
-            <a href="mypage.index.html" class="text-gray-600 hover:text-gray-900">
+            <a href="/mypage/index" class="text-gray-600 hover:text-gray-900">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 19l-7-7 7-7"/></svg>
             </a>
             <h1 class="text-xl font-bold text-center text-gray-800">프로필 편집</h1>
@@ -59,14 +59,14 @@
     </div>
 
     <!-- Toast -->
-    <div id="custom-toast" class="fixed top-20 left-1/2 transform -translate-x-1/2 px-6 py-3 bg-gray-800 text-white text-sm font-medium rounded-lg shadow-lg z-50 transition-opacity duration-300 opacity-0 pointer-events-none">
+    <div id="custom-toast" class="fixed top-20 left-1/2 transform -translate-x-1/2 px-6 py-3 bg-gray-800 text-white text-sm font-medium rounded-lg shadow-lg z-[70] transition-opacity duration-300 opacity-0 pointer-events-none">
         알림 메시지
     </div>
     
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
-        import { firebaseConfig } from "./firebase-config.js";
+        import { firebaseConfig } from "/firebase-config.js";
         import Compressor from 'https://cdn.jsdelivr.net/npm/compressorjs@1.2.1/dist/compressor.esm.js';
 
         const app = initializeApp(firebaseConfig);
@@ -105,7 +105,7 @@
             } else {
                 showCustomToast("로그인이 필요한 페이지입니다. 로그인 페이지로 이동합니다.");
                 setTimeout(() => {
-                    window.location.href = 'index.html';
+                    window.location.href = '/index';
                 }, 1000);
             }
         });

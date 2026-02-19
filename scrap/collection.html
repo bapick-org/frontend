@@ -34,7 +34,7 @@
         <header class="grid grid-cols-3 items-center p-4 border-b border-gray-200 flex-shrink-0 bg-white">
             <!-- 뒤로가기 버튼 (스크랩 페이지로 이동) -->
             <div class="justify-self-start">
-                <a href="scrap.index.html" id="header-back-button" class="p-1 block rounded-full text-gray-600 hover:bg-gray-100 focus:outline-none">
+                <a href="/scrap/index" id="header-back-button" class="p-1 block rounded-full text-gray-600 hover:bg-gray-100 focus:outline-none">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
                     </svg>
@@ -60,15 +60,10 @@
         </main>
     </div>
 
-    <!-- 토스트 -->
-    <div id="custom-toast"
-        class="fixed top-20 left-1/2 transform -translate-x-1/2 px-6 py-3 bg-gray-800 text-white text-sm font-medium rounded-lg shadow-lg z-50 transition-opacity duration-300 opacity-0 pointer-events-none">
-        알림 메시지
-    </div>
-
     <!-- 모달 오버레이 -->
-    <div id="custom-modal-overlay" class="fixed inset-0 bg-black bg-opacity-40 z-50 hidden"></div>
+    <div id="custom-modal-overlay" class="fixed inset-0 bg-black bg-opacity-40 z-40 hidden"></div>
 
+    
     <!-- 컬렉션 삭제 모달 -->
     <div id="custom-confirm-modal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-xl p-6 z-50 w-80 hidden">
         <p id="confirm-message" class="text-gray-700 mb-6 text-center text-base font-medium">
@@ -83,11 +78,18 @@
             </button>
         </div>
     </div>
+    
+    <!-- 토스트 -->
+    <div id="custom-toast"
+        class="fixed top-20 left-1/2 transform -translate-x-1/2 px-6 py-3 bg-gray-800 text-white text-sm font-medium rounded-lg shadow-lg z-[70] transition-opacity duration-300 opacity-0 pointer-events-none">
+        알림 메시지
+    </div>
+
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
-        import { firebaseConfig } from "./firebase-config.js";
+        import { firebaseConfig } from "/firebase-config.js";
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
@@ -98,8 +100,8 @@
         let currentCollectionName = null;
         let isAppInitialized  = false; // 앱 초기화 여부 플래그
 
-        const urlParams = new URLSearchParams(window.location.search);
-        const collectionIdParam = urlParams.get('id');
+        const pathParts = window.location.pathname.split('/');
+        const collectionIdParam = pathParts[pathParts.length - 1];
         const collectionId = collectionIdParam ? parseInt(collectionIdParam, 10) : null;
 
         const NO_IMAGE_URL = '/assets/images/restaurant-default.png';
@@ -229,7 +231,7 @@
                 }
 
                 // 성공 시 컬렉션 메인 페이지로 리다이렉션
-                window.location.href = 'scrap.index.html';
+                window.location.href = '/scrap/index';
             } catch (error) {
                 if (isLocal) console.error('컬렉션 삭제 API 호출 중 오류 발생:', error);
                 showCustomToast(`컬렉션 삭제에 실패했습니다.`); 
@@ -281,7 +283,7 @@
             const restaurant = scrap.restaurant;
 
             const cardLink = document.createElement('a');
-            cardLink.href = `/detail.html?id=${restaurant.id}`;
+            cardLink.href = `/restaurant/detail/${restaurant.id}`;
             cardLink.className = 'block';
 
             const card = document.createElement('div');
@@ -371,7 +373,7 @@
                 initApp(user); 
             } else {
                 showCustomToast("로그인이 필요한 페이지입니다.");
-                setTimeout(() => { window.location.href = 'index.html'; }, 1000);
+                setTimeout(() => { window.location.href = '/index'; }, 1000);
             }
         });
     </script>

@@ -25,12 +25,6 @@
     </style>
 </head>
 <body class="flex flex-col h-screen">
-
-    <div id="custom-toast"
-        class="fixed top-5 left-1/2 transform -translate-x-1/2 px-6 py-3 bg-gray-800 text-white text-sm font-medium rounded-lg shadow-lg z-50 transition-opacity duration-300 opacity-0 pointer-events-none">
-        알림 메시지
-    </div>
-    
     <header class="grid grid-cols-3 items-center bg-white p-4 shadow-md z-10">
         <div class="justify-self-start">
             <a href="javascript:history.back()" class="text-gray-600 hover:bg-gray-100 rounded-full">
@@ -64,7 +58,15 @@
         </button>
     </div>
 
+    <!-- 토스트 메시지 -->
+    <div id="custom-toast"
+        class="fixed top-5 left-1/2 transform -translate-x-1/2 px-6 py-3 bg-gray-800 text-white text-sm font-medium rounded-lg shadow-lg z-[70] transition-opacity duration-300 opacity-0 pointer-events-none">
+        알림 메시지
+    </div>
+
     <script>
+        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
         // 커스텀 토스트 함수 정의
         const customToast = document.getElementById('custom-toast');
         const toastDuration = 2500; 
@@ -116,7 +118,7 @@
                         initialLon = parseFloat(savedLocation.lon);
                         initialZoom = 3; // 저장된 위치일 경우 확대
                     } catch (e) {
-                        console.error("Error parsing saved location", e);
+                        if (isLocal) console.error("Error parsing saved location", e);
                     }
                 }
 
@@ -196,7 +198,7 @@
                                     locationName = data.display_name.split(', ').slice(0, 2).join(', ');
                                 }
                             } catch (error) {
-                                console.error("Reverse geocoding error (Nominatim API):", error);
+                                if (isLocal) console.error("Reverse geocoding error (Nominatim API):", error);
                             }
                             
                             currentLocationData = {
@@ -211,7 +213,7 @@
                         },
                         (error) => {
                             // GPS 실패 처리
-                            console.error(`Geolocation error: ${error.code} - ${error.message}`);
+                            if (isLocal) console.error(`Geolocation error: ${error.code} - ${error.message}`);
                             showCustomToast('GPS 현재 위치를 찾을 수 없습니다. (권한 거부 또는 오류)');
                             saveButton.textContent = '위치 저장';
                             saveButton.disabled = false;
@@ -272,13 +274,7 @@
                     const returnTo = urlParams.get('returnTo');
                     const menu = urlParams.get('menu');
                     
-                    if (returnTo === 'chat' && menu) {
-                        // 채팅 화면으로 이동
-                        window.location.href = `chat.html?returnTo=chat&menu=${menu}`; 
-                    } else {
-                        // 기존 로직 (홈 화면으로 이동)
-                        window.location.href = 'home.html';
-                    }
+                    window.location.href = '/home';
                 } else {
                     showCustomToast('위치를 검색하거나, GPS 버튼을 눌러 위치를 설정해주세요.');
                 }

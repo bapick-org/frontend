@@ -23,7 +23,7 @@
 
     <header class="p-4 border-b border-gray-200 flex-shrink-0 bg-white">
         <div class="flex items-center">
-            <a href="mypage.index.html" class="text-gray-600 hover:text-gray-900">
+            <a href="/mypage/index" class="text-gray-600 hover:text-gray-900">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M15 19l-7-7 7-7" />
                 </svg>
@@ -63,7 +63,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
-        import { firebaseConfig } from "./firebase-config.js";
+        import { firebaseConfig } from "/firebase-config.js";
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
@@ -311,7 +311,7 @@
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
                 alert('로그인이 필요합니다.');
-                window.location.href = 'index.html';
+                window.location.href = '/index';
                 return;
             }
             idToken = await user.getIdToken();

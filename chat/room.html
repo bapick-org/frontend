@@ -207,7 +207,7 @@
 <body>
     <div class="chat-container">
         <header class="header">
-            <button class="text-gray-500 hover:text-gray-700" onclick="window.location.href='chat_list.html'">
+            <button class="text-gray-500 hover:text-gray-700" onclick="window.location.href='/chat/index'">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                 </svg>
@@ -233,7 +233,7 @@
     // Firebase SDK import 
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
-    import { firebaseConfig } from "./firebase-config.js";
+    import { firebaseConfig } from "/firebase-config.js";
 
     // Firebase 앱 초기화
     const app = initializeApp(firebaseConfig);
@@ -268,12 +268,6 @@
     /* =========================================================
     * 유틸 함수
     * ======================================================= */
-    // URL에서 roomId를 가져오는 함수
-    function getRoomIdFromUrl() {
-        const urlParams = new URLSearchParams(window.location.search);
-        return urlParams.get('roomId'); 
-    }
-
     // 스크롤을 맨 아래로 내리는 함수
     function scrollToBottom(element) {
         if (!element) return;
@@ -478,7 +472,7 @@
         }
 
         return `
-            <a href="detail.html?id=${restaurant.id}" class="restaurant-card overflow-hidden">
+            <a href="/restaurant/detail/${restaurant.id}" class="restaurant-card overflow-hidden">
                 <img
                     src="${imageUrl}" 
                     alt="${restaurant.name} 이미지" 
@@ -1051,19 +1045,27 @@
     
     onAuthStateChanged(auth, async (user) => {
         if (!user) {
-            window.location.href = 'index.html';
+            window.location.href = '/index';
             return;
         }
 
         idToken = await user.getIdToken();
         currentUserUid = user.uid;
 
+        const pathParts = window.location.pathname.split('/');
+        const roomIndex = pathParts.indexOf('room');
+        let rawRoomId = pathParts[roomIndex + 1];
+
+        if (rawRoomId && (rawRoomId.includes('?') || rawRoomId.includes('&'))) {
+            rawRoomId = rawRoomId.split(/[?&]/)[0];
+        }
+        
+        const urlRoomId = parseInt(rawRoomId, 10);
+
         const urlParams = new URLSearchParams(window.location.search);
-        const urlRoomId = urlParams.get('roomId');
-        const isNew = urlParams.get('isNew') === 'true'
+        const isNew = urlParams.get('isNew') === 'true';
 
         initializeKakaoPlaces();
-
 
         if (urlRoomId) {
             currentRoomId = urlRoomId;

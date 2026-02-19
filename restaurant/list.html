@@ -41,6 +41,8 @@
     </main>
 
     <script>
+    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
     (function () {
         const listContainer = document.getElementById('restaurant-list-container');
         
@@ -52,13 +54,13 @@
             try {
                 restaurantsToDisplay = JSON.parse(savedData);
             } catch (e) {
-                console.error("로컬 데이터 파싱 오류:", e);
+                if (isLocal) console.error("로컬 데이터 파싱 오류:", e);
             }
         } 
         
         // 데이터가 없을 경우 메시지 표시
         if (restaurantsToDisplay.length === 0) {
-            listContainer.innerHTML = '<p class="text-gray-500 p-4">추천 맛집 정보가 없습니다. 홈 화면에서 오행 분석을 진행해 주세요.</p>';
+            listContainer.innerHTML = '<p class="text-gray-500 p-4">추천 맛집 정보가 없습니다.</p>';
             return;
         }
 
@@ -100,7 +102,7 @@
             }
 
             return `
-                <a href="detail.html?id=${restaurant.id}" class="flex bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+                <a href="/restaurant/detail/${restaurant.id}" class="flex bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-shadow">
                     
                     <div class="flex-shrink-0 w-24 rounded-lg overflow-hidden"> 
                         <img class="w-full h-full object-cover" src="${imageUrl}" alt="${restaurant.name}" onerror="this.onerror=null;this.src='${defaultImageUrl}';">
