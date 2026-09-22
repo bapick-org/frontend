@@ -4,12 +4,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>홈 - Bapick</title>
+    <meta property="og:title" content="홈 - Bapick" />
+    <meta property="og:url" content="https://bapick.kr" />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="/assets/images/logo-bg-orange.png" />
+    <meta
+      name="description"
+      content="오늘의 운세를 확인하고, 현재 위치 주변 맛집을 둘러보세요. AI 채팅으로 구체적인 메뉴와 식당을 추천받을 수 있습니다."
+    />
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
     <link rel="manifest" href="/assets/icons/site.webmanifest">
     <link rel="shortcut icon" href="/assets/icons/favicon.ico">
-    <title>홈 - Bapick</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap">
     <link rel="stylesheet"
@@ -482,8 +490,8 @@
 
             return `
                 <a href="/restaurant/detail/${restaurant.id}" class="w-80 h-44 flex-shrink-0 flex bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden">
-                    
-                    <div class="flex-shrink-0 w-32 h-full rounded-lg overflow-hidden"> 
+
+                    <div class="flex-shrink-0 w-32 h-full rounded-lg overflow-hidden">
                         <img class="w-full h-full object-cover" src="${imageUrl}" alt="${restaurant.name}">
                     </div>
 
@@ -563,7 +571,7 @@
         async function initHomePage(user) {
             try {
                 const idToken = await user.getIdToken();
-                
+
                 // 유저 프로필 및 사주 데이터 병렬 로드
                 const [userRes, sajuRes] = await Promise.allSettled([
                     loadUserProfile(idToken),
@@ -572,10 +580,10 @@
 
                 // 위치 설정 로드
                 loadSavedLocation();
-                
+
                 // 맛집 정보 로드
                 await fetchNearbyRestaurants(idToken);
-                
+
             } catch (err) {
                 if (isLocal) console.error("[Init Error]:", err);
             }
@@ -595,7 +603,7 @@
                 }
 
                 const userData = await res.json();
-                
+
                 // UI 업데이트
                 userNameEl.textContent = `${userData.nickname}님` || '사용자님';
                 userbirthdateEl.textContent = userData.birthDate || '';
@@ -623,7 +631,7 @@
                     }
                     throw new Error(`API 오류: ${res.status} ${res.statusText}`);
                 }
-                
+
                 const sajuData = await res.json();
 
                 const today = new Date();
@@ -643,7 +651,7 @@
                     water: sajuData.ohengScores['수(水)'] || 0
                 });
             } catch (err) {
-                if (isLocal) console.error("[Saju Load Error]:", err); 
+                if (isLocal) console.error("[Saju Load Error]:", err);
                 //showCustomToast(`오늘의 운세를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.`);
 
                 // 오류 메시지 동기화
